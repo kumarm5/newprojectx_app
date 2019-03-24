@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="eng">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static '/img/Original_on_Transparent.png' %}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <title>360degree</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static '/css/app.css' %}">
+    <style>        
+        .plane-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .footer {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            color: #212529;
+            font-size: 1rem;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        .height-full{
+            background: #fff;
+        }
+
+        .logo-img{
+            height: 450px;
+            width: 450px;
+            margin: auto;
+        }
+
+    </style>    
+</head>
+
+<body class="light">
+    <div id="app">
+        <main>
+            <div id="primary" class="p-t-b-100 height-full responsive-phone">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <!-- <img src="{% static '/img/icon/icon-plane.png' %}" alt=""> -->
+                            <img src="{% static '/img/Original.png' %}" width="55%" height="70%" class="logo-img">
+                        </div>
+                        <div class="col-lg-6 p-t-100">
+                            <div>
+                                <h1>Welcome</h1>
+                                <p class="s-18 p-t-b-20 font-weight-lighter">Login to your account</p>
+                            </div>
+                            <form action="{% url 'login' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-envelope-o"></i>
+                                            {{ form.email }}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-user-secret"></i>
+                                            {{ form.password }}
+                                        </div>
+                                    </div>
+                                    {% if login_error %}
+                                        <div class="col-lg-12 text-center">
+                                            <p style="color:#fff">Enter valid email and password</p>
+                                        </div>
+                                    {% endif %}
+                                    <div class="col-lg-12">
+                                        <input type="submit" class="btn btn-success btn-lg btn-block" value="Sign In">
+                                        <a href="{% url 'register' %}" class="forget-pass text-primary">Sign Up</a>
+                                        <a class="float-right" href="{% url 'password_reset' %}">Forgot password?</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>    
+
+    <div class="footer"><strong>Trademark & Copyright 2019 BlackStar LLC.</strong>  |  All rights reserved.</div>
+</body>
+
+</html>

@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    My Dashboard {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<!-- <div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'company-user-dashboard' %}"><i class="icon icon-list"></i>Dashboard</a>
+        </li>
+    </ul>
+</div> -->
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .btn-success.disabled, .btn-success:disabled {
+        color: #000000 !important;
+        background-color: #cecece !important;
+        border: #cecece !important;
+    }
+    .badge-blue{
+        color: #ADD8E6;
+        background-color: #ADD8E6;
+    }
+    .badge-orange{
+        color: orange;
+        background-color: orange;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 text-center">
+                {% if system_company_rpo %}
+                <label><strong>Select Customer</strong></label>
+                <select class="form-control s-12 rpo-company" name="rpo-company">
+                    <option value=""> Select Option </option>
+                    {% for company in system_company_rpo %}
+                    <option value="{{ company.id }}"
+                    {% if request.session.company_id == company.id %}
+                        selected
+                    {% endif %}
+                    >Customer: {{ company.company_name }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+        <br><br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                                <!-- Table heading -->
+                                <thead>
+                                    <tr class="no-b">
+                                        <th>Deactivate Request</th>
+                                        <th>Recruitment Type</th>
+                                        <th>Applicant Name</th>
+                                        <th>Recruiter</th>
+                                        <th>Hiring Manager</th>
+                                        <th>Background Verification</th>
+                                        <th>Reference Check</th>
+                                        <th>Employment Forms</th>
+                                        <th>Medical Check</th>
+                                        <th>Travel Booking</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if object_list %}
+                                    {% for request in object_list %}
+                                    <tr>
+                                        <td><input type="checkbox" class="form-control" name="request-status"
+                                            {% if request.request_status == False %}
+                                                checked
+                                            {% endif %}
+                                        ></td>
+                                        <td>{{request.co_onboarding_type.co_onboarding_type_name}}</td>
+                                        <td>{{request.applicant.user.first_name}} {{request.applicant.user.last_name}}</td>
+                                        <td>{{request.recruiter.first_name}} {{request.recruiter.last_name}}</td>
+                                        <td>{{request.hiring_manager_user}}</td>
+                                        <td class="text-center">
+                                            {% autoescape off %}
+                                                {{ request.id|step_one_status }}
+                                            {% endautoescape %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% autoescape off %}
+                                                {{ request.id|step_two_status }}
+                                            {% endautoescape %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% autoescape off %}
+                                                {{ request.id|step_three_status }}
+                                            {% endautoescape %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% autoescape off %}
+                                                {{ request.id|step_four_status }}
+                                            {% endautoescape %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% autoescape off %}
+                                                {{ request.id|travel_book }}
+                                            {% endautoescape %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Step Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- travel info model -->
+<div class="modal fade" id="travelModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Travelling Information</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal" id="modal-travel-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="model_travel_id" name="model_travel_id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="vendor">Vendor</label>
+                                <input type="text" class="form-control r-0 light s-12" id="modal_vendor" name="modal_vendor">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="vendor_email">Vendor Email</label>
+                                <input type="email" class="form-control r-0 light s-12" id="modal_vendor_email" name="modal_vendor_email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="due_date">Due Date</label>
+                                <input type="text" class="form-control r-0 light s-12 date-picker" id="modal_due_date" name="modal_due_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="attached_template">Attached Template</label>
+                                <input type="file" class="form-control r-0 light s-12" id="attached_template" name="attached_template">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="attached_template">Uploaded documents: </label>
+                                <a href="" id="travel_attached_template_url"></a>
+                            </div>                            
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="commets">Comments</label>
+                                <textarea class="form-control r-0 light s-12" id="modal_comments" name="modal_comments"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <a href="#" class="btn btn-info btn-xs modal-update">Update</a>
+                            <a href="#" class="btn btn-danger btn-xs modal-delete">Delete</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+
+        jQuery(function () {
+            jQuery('.date-picker').datetimepicker({
+                format: 'Y-m-d',
+                onShow: function (ct) {
+                    this.setOptions({
+                        maxDate: jQuery('#modal_due_date').val() ? jQuery('#modal_due_date').val() : false
+                    })
+                },
+                timepicker: false
+            });
+        });
+
+
+        $(document).ready(function () {
+            $('body').on('click', '.badge', function() {
+                $('.modal-body').empty();
+                var mystatus = $(this).data('status');
+                var resultstatus = $(this).data('resultstatus');
+                var comment_value = $(this).data('comments');
+                var hiring_manager_comment_value = $(this).data('hiring_manager_comment');
+                var cmo_manager_comment_value = $(this).data('cmo_manager_comment');
+                var step_id = $(this).data('step-id');
+                
+                if (step_id != '4'){
+                    step_id = ''
+                }
+
+                if ((hiring_manager_comment_value == '') || (hiring_manager_comment_value == 'None') || (hiring_manager_comment_value == undefined)){
+                    hiring_manager_comment = 'No Comment';
+                } else {
+                    hiring_manager_comment = hiring_manager_comment_value;
+                }
+
+                if ((cmo_manager_comment_value == '') || (cmo_manager_comment_value == 'None') || (cmo_manager_comment_value == undefined)){
+                    cmo_manager_comment = 'No Comment';
+                } else {
+                    cmo_manager_comment = cmo_manager_comment_value;
+                }
+
+                if (mystatus == '' || (mystatus == 'None')){
+                    mystatus = 'No Status';
+                } else {
+                    mystatus = mystatus;
+                }
+
+                if ((resultstatus == '') || (resultstatus == 'None')){
+                    resultstatus = 'No Result Status';
+                } else {
+                    resultstatus = resultstatus;
+                }
+
+                if((comment_value == '') || (comment_value == 'None')){
+                    comments = 'No Comment';
+                } else {
+                    comments = comment_value;
+                }
+
+                var filename_value = $(this).data('filename');
+
+                if (filename_value != ''){
+                    filename = filename_value;
+                    fileurl = 'https://project-x-s3.s3.amazonaws.com/'+filename;
+                } else {
+                    filename = 'No file found.'
+                    fileurl = 'javascript:void();'
+                }
+
+                if (step_id != '4'){
+                    $(".modal-body").append('<strong>Status: ' + mystatus + '</strong><br>\
+                    <strong>Result Status: ' + resultstatus + '</strong><br>\
+                    <strong>Comment: ' + comments + '</strong><br>\
+                    <strong>Hiring Manager Comment: ' + hiring_manager_comment + '</strong><br>\
+                    <strong>File Name: ' + '<a href="' + fileurl + '" download >' + filename + '</strong><br>\
+                    ');
+                } else {
+                    $(".modal-body").append('<strong>Status: ' + mystatus + '</strong><br>\
+                    <strong>Result Status: ' + resultstatus + '</strong><br>\
+                    <strong>Comment: ' + comments + '</strong><br>\
+                    <strong>Medical Officer’s comment: ' + cmo_manager_comment + '</strong><br>\
+                    <strong>File Name: ' + '<a href="' + fileurl + '" download >' + filename + '</strong><br>\
+                    ');
+                }
+            });
+
+            $(".medical-check").each(function () {
+                found = $(this).closest('tr').find('.not-complete').length;
+                if (found > 0) {
+                    $(this).attr('class', 'btn btn-success s-12 medical-check disabled');
+                }
+            });
+
+            $(".travel-booking").each(function () {
+                found = $(this).closest('tr').find('.not-complete').length;
+                if (found > 0) {
+                    $(this).attr('class', 'btn btn-success btn-xs s-12 travel-booking disabled');
+                }
+            });
+
+            $('body').on('click', '.override', function() {
+                found = $(this).closest('td').find('.disabled').length;
+
+                if(found > 0){
+                    $(this).prev().prev().prev().removeClass('disabled');
+                } else {
+                    $(this).prev().prev().prev().addClass('disabled');
+                }
+
+            });
+
+            $('[data-toggle="popover"]').popover();
+
+            $('body').on('click', function (e) {
+                if ($(e.target).data('toggle') !== 'popover' && $(e.target).parents('.popover.in').length === 0) {
+                    $('[data-toggle="popover"]').popover('hide');
+                }
+            });
+
+            $('body').on('click', 'input[name="request-status"]', function() {
+                $.confirm({
+                    title: 'Request Status',
+                    content: '<strong>Are you sure, you want to deactive the request?</strong>',
+                    icon: 'fa fa-question-circle',
+                    animation: 'scale',
+                    closeAnimation: 'scale',
+                    opacity: 0.5,
+                    buttons: {
+                        'confirm': {
+                            text: 'Yes',
+                            btnClass: 'btn-blue',
+                            action: function () {
+                                $.alert('<strong>Request Updated Successfully.</strong>');
+                            }
+                        },
+                        cancel: {
+                            text: 'No',
+                            action: function () {
+                                backgroundDismiss: true
+                            }
+                        },
+                    }
+                });
+            });
+
+            $('.rpo-company').on('change', function () {
+                var company_id = $(this).val();
+                $.ajax({
+                    url: '/ajax/rpo-company/' + company_id,
+                    dataType: 'json',
+                    success: function (data) {
+                        window.location.reload();
+                    }
+                });
+            });
+
+            $('.travel-info').on('click', function(){
+                var request_id = $(this).data('id');
+                $.ajax({
+                    url: '/ajax/travel-booked-details/'+request_id,
+                    dataType: 'json',
+                    success: function(data){
+                        $('#model_travel_id').val(data['travel_id']);
+                        $('#modal_vendor').val(data['vendor']);
+                        $('#modal_vendor_email').val(data['vendor_email']);
+                        $('#modal_due_date').val(data['due_date']);
+                        $('#attached_template').val();
+                        $('#modal_comments').val(data['comments']);
+
+                        if (data['travel_attached_template_url'] != undefined) {
+                            $('#travel_attached_template_url').attr('href', data['travel_attached_template_url']);
+                            $('#travel_attached_template_url').text(data['travel_template_name']);
+                        } else {
+                            $('#travel_attached_template_url').attr('href', 'javascript:void();');
+                            $('#travel_attached_template_url').text('No File');
+                        }
+                    }
+                });
+            });
+
+            $('body').on('click', '.modal-update', function () {
+                var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val();
+                var model_travel_id = $('#model_travel_id').val();
+                var modal_vendor = $('#modal_vendor').val();
+                var modal_vendor_email = $('#modal_vendor_email').val();
+                var modal_due_date = $('#modal_due_date').val();
+                var modal_comments = $('#modal_comments').val();
+                // var attached_template = $('#attached_template').val();                
+                var fd = new FormData();
+                // fd.append('attached_template', attached_template);
+                fd.append('model_travel_id', model_travel_id);
+                fd.append('modal_due_date', modal_due_date);
+                fd.append('modal_comments', modal_comments);
+                debugger
+                $.ajax({
+                    url: '/ajax/travel-booked-update/',
+                    type: 'POST',
+                    dataType: 'json',
+                    // data: {
+                    //     model_travel_id: model_travel_id,
+                    //     modal_vendor: modal_vendor,
+                    //     modal_vendor_email: modal_vendor_email,
+                    //     modal_due_date: modal_due_date,
+                    //     modal_comments: modal_comments,
+                    //     csrfmiddlewaretoken: csrfmiddlewaretoken
+                    // },
+                    data: fd,
+                    success: function(result){
+                        console.log(result['status']);
+                        document.location.reload();
+                    }
+                });
+            });
+
+            $('body').on('click', '.modal-delete', function(){
+                var travel_id = $('#model_travel_id').val();
+                $.ajax({
+                    url: '/ajax/travel-booked-delete/'+travel_id,
+                    dataType: 'json',
+                    success: function(data){
+                        console.log(data['status']);
+                        // $('#travelModal').modal('hide');
+                        document.location.reload();
+                    }
+                });
+            });            
+        });
+    </script>
+{% endblock %}

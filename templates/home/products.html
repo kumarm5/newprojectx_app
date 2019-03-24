@@ -1,0 +1,97 @@
+{% extends 'home/index.html' %}
+
+{% block style %}
+<style>
+        body{
+            font-family: 'Roboto', sans-serif;
+        }
+        .error{
+            color: red;
+        }
+        .card-body{
+            min-height: 160px;
+        }            
+        .footer {
+            text-align: center;
+        }
+        .container-fluid {
+            padding-right: 0px !important;
+            padding-left: 0px !important;
+        }
+        .logo-img{
+            width: 100px;
+            height: 100px;
+            margin-top: 10px;
+        }
+        .book-demo{
+            margin-right: 22px;
+            margin-top: 70px;
+            border-radius: 0.5rem;
+            background-color: #002060;
+            color: #ffffff;
+        }
+
+        .book-demo:hover{
+            color: #ffffff;
+        }
+
+        .navbar{
+            z-index:9;
+        }
+
+        #fullCarousel{
+            position:absolute;
+            width:100%;
+            top:0;
+        }
+
+    </style>
+
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row text-center" id="products">
+            <div class="col-md-12">
+                <br><br>
+                <h3><u>PRODUCTS</u></h3>
+                <br>
+                <p>360degree’s robust onboarding platform helps organizations transition new hires seamlessly. The experience sets the tone for employers to create a “wow factor”.  Some of the features offered are -</p>
+                <br><br>
+            </div>
+            
+            <div class="col-md-4">
+                <p><strong>DASHBOARD</strong></p>
+                <hr>
+                <p>New hire dashboard provides real-time visual view of the candidates onboarding progress</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>DEFINE ONBOARDING STEPS</strong></p>
+                <hr>
+                <p>Define onboarding steps and create action requests for new hires</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>MANAGE DOCUMENTS</strong></p>
+                <hr>
+                <p>Configure documents that need to be collected, setup background check</p>
+                <br><br>
+            </div>
+            <div class="col-md-4 offset-md-2">
+                <p><strong>CONFIGURE</strong></p>
+                <hr>
+                <p>Configure your company , setup new hires, users or setup your RPO to hire for your company</p>
+            
+            </div>
+            <div class="col-md-4">
+                <p><strong>MANAGE VENDORS</strong></p>
+                <hr>
+                <p>Setup your vendors - background check, travel and medical vendors can use the system and update info. real time</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+<div class="footer"><strong>Trademark & Copyright 2019 BlackStar LLC.</strong>  |  All rights reserved.</div>
+
+{% block script %}
+{% endblock %}

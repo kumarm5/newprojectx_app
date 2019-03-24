@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    My Tasks {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'template-listing' %}"><i class="icon icon-list"></i>All
+                Task</a>
+        </li>        
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <br>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover">
+                            <!-- Table heading -->
+                            <thead>
+                                <tr>
+                                    <th>From</th>
+                                    <th>Sender</th>
+                                    <th>Department</th>
+                                    <th>Created Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                    {% for task in object_list %}
+                                    <tr>
+                                        <td>{{task.co_onboarding_type.company.company_name}}</td>
+                                        <td>{{task.co_onboarding_type.company.company_admin }}</td>
+                                        <td>Human Resources</td>
+                                        <td>{{task.created_at}}</td>
+                                        <td>
+                                            <a href="{% url 'get-my-task' id=task.id %}">Complete OnBoarding Tasks</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    My Dashboard {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<!-- <div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'company-user-dashboard' %}"><i class="icon icon-list"></i>Dashboard</a>
+        </li>
+    </ul>
+</div> -->
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .btn-success.disabled, .btn-success:disabled {
+        color: #000000 !important;
+        background-color: #cecece !important;
+        border: #cecece !important;
+    }
+    .badge-blue{
+        color: #ADD8E6;
+        background-color: #ADD8E6;
+    }
+    .badge-orange{
+        color: orange;
+        background-color: orange;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Recruitment Type</th>
+                                    <th>Applicant Name</th>
+                                    <th>Recruiter</th>
+                                    <th>Download</th>
+                                    <th>Hiring Manager</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                {% for request in object_list %}
+                                <tr>
+                                    <td>{{request.myrequest.co_onboarding_type.co_onboarding_type_name}}</td>
+                                    <td>{{request.myrequest.applicant.user.first_name}} {{request.myrequest.applicant.user.last_name}}</td>
+                                    <td>{{request.myrequest.recruiter.first_name}} {{request.myrequest.recruiter.last_name}}</td>
+                                    <td class="text-center">
+                                        <i class="icon-file-zip-o documents" data-id="{{ request.myrequest.id }}" data-stepid="{{ request.step_id }}" data-toggle="modal" data-target="#exampleModal"></i>
+                                    </td>
+                                    <td>{{request.myrequest.hiring_manager_user}}</td>
+                                    <td>{{ request.cmo_manager_status }}</td>                                    
+                                    <td class="text-center">
+                                        <a href="{% url 'cmo-user-case-form' id=request.id %}"><i class="icon-edit"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Step Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        // get the document
+        $('body').on('click', '.documents', function() {
+            var myrequest_id = $(this).data('id');
+            var step_id = $(this).data('stepid');
+
+            $.ajax({
+                url: '/ajax/vendor-documents/' + myrequest_id + '/' + step_id + '/',
+                dataType: 'json',
+                success: function (data) {
+                    $(".modal-body").empty();
+                    if ((step_id == '1') && (data.length > 0)) {
+                        $.each(data, function (index, value) {
+                            if (data[index].document_file != '') {
+                                $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_file + '" download >' + data[index].document_file + '</a> <br>');
+                            }
+                        });
+                    } else if((step_id == '3') && (data.length > 0)) {
+                        $.each(data, function (index, value) {
+                            if (data[index].document_name != '') {
+                                $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_name + '" download >' + data[index].document_name + '</a> <br>');
+                            }
+                        });
+                    } else if((step_id == '4') && (data.length > 0)) {
+                        $.each(data, function (index, value) {
+                            if (data[index].document_name != '') {
+                                $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_name + '" download >' + data[index].document_name + '</a> <br>');
+                            }
+                        });
+                    } else {
+                        $(".modal-body").append('<strong>No document found</strong>');
+                    }
+                }
+            });
+        });
+
+    </script>
+{% endblock %}

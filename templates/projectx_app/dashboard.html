@@ -1,0 +1,332 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    {% if request.user.user_type == 1 %} <!--Applicant-->
+        Personal Information {{ block.super }}
+    {% else %}
+        Dashboard {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block style %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.css">
+    <style>
+        #profile_pic-clear_id, label[for="profile_pic-clear_id"]{
+            display:none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        {% if request.user.user_type == 1 %} <!--Applicant-->
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" action="{% url 'dashboard' %}" name="personal_form" id="personal_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="user" value="{{ request.user.id }}">
+                    {{ personalinfo_form.x }}
+                    {{ personalinfo_form.y }}
+                    {{ personalinfo_form.width }}
+                    {{ personalinfo_form.height }}
+                    <div class="row">
+                        <div class="col-sm-3 col-xs-12" style="display:none">
+                            <label class="form-label">Salutation</label>
+                            {{personalinfo_form.salutation}}
+                            {% if form.errors.salutation %}
+                            <p class="color-red">{{personalinfo_form.errors.salutation.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">First Name*</label>
+                            {{form.first_name}}
+                            {% if form.errors.first_name %}
+                            <p class="color-red">{{form.errors.first_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Middle Name</label>
+                            {{personalinfo_form.middleName}}
+                            {% if form.errors.middleName %}
+                            <p class="color-red">{{personalinfo_form.errors.middleName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Last Name*</label>
+                            {{form.last_name}}
+                            {% if form.errors.last_name %}
+                            <p class="color-red">{{form.errors.lastName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Gender*</label>
+                            {{personalinfo_form.gender}}
+                            {% if form.errors.gender %}
+                            <p class="color-red">{{personalinfo_form.errors.gender.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Marital Status*</label>
+                            {{personalinfo_form.maritalStatus}}
+                            {% if form.errors.maritalStatus %}
+                            <p class="color-red">{{personalinfo_form.errors.maritalStatus.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Date Of Birth*</label>
+                            {{personalinfo_form.dateOfBirth}}
+                            {% if form.errors.dateOfBirth %}
+                            <p class="color-red">{{personalinfo_form.errors.dateOfBirth.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <!-- <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Have you ever changed your name</label>
+                            {{personalinfo_form.nameChanged}}
+                            {% if form.errors.nameChanged %}
+                                <p class="color-red">{{personalinfo_form.errors.nameChanged.as_text}}</p>
+                            {% endif %}
+                        </div> -->
+                        
+                    </div>
+                    <br />
+                    <!-- <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Father First Name*</label>
+                            {{personalinfo_form.fatherFirstName}}
+                            {% if form.errors.fatherFirstName %}
+                            <p class="color-red">{{personalinfo_form.errors.fatherFirstName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Father Middle Name</label>
+                            {{personalinfo_form.fatherMiddleName}}
+                            {% if form.errors.fatherMiddleName %}
+                            <p class="color-red">{{personalinfo_form.errors.fatherMiddleName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Father Last Name*</label>
+                            {{personalinfo_form.fatherLastName}}
+                            {% if form.errors.fatherLastName %}
+                            <p class="color-red">{{personalinfo_form.errors.fatherLastName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Mother First Name*</label>
+                            {{personalinfo_form.motherFirstName}}
+                            {% if form.errors.motherFirstName %}
+                            <p class="color-red">{{personalinfo_form.errors.motherFirstName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Mother Middle Name</label>
+                            {{personalinfo_form.motherMiddleName}}
+                            {% if form.errors.motherMiddleName %}
+                            <p class="color-red">{{personalinfo_form.errors.motherMiddleName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Mother Last Name*</label>
+                            {{personalinfo_form.motherLastName}}
+                            {% if form.errors.motherLastName %}
+                            <p class="color-red">{{personalinfo_form.errors.motherLastName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br /> -->
+                    <div class="row">
+                        <!-- <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Maiden/Former Name</label>
+                            {{personalinfo_form.previousName}}
+                            {% if form.errors.previousName %}
+                                <p class="color-red">{{personalinfo_form.errors.previousName.as_text}}</p>
+                            {% endif %}
+                        </div> -->                        
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Profile Image</label>
+                            {{personalinfo_form.profile_pic}}
+                            {% if form.errors.profile_pic %}
+                            <p class="color-red">{{personalinfo_form.errors.profile_pic.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-8 col-xs-12 text-center">
+                            <br><br>
+                            {% if personalinfo_form.dateOfBirth.value == None or '' %}
+                                <label class="text-primary"><strong>Please Submit the form to proceed further.</strong></label>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                        </div>
+                    </div>
+                    <br />
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- MODAL TO CROP THE IMAGE -->
+<div class="modal fade" id="modalCrop">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Crop the photo</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>                
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                <div class="row">
+                    <div class="col-md-11">
+                        <img src="" id="image" style="max-width: 100%;">
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group pull-left" role="group">
+                    <button type="button" class="btn btn-default js-zoom-in">
+                        <span class="icon-plus"></span>
+                    </button>
+                    <button type="button" class="btn btn-default js-zoom-out">                        
+                        <span class="icon-minus"></span>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary js-crop-and-upload">Crop and upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.js"></script>
+    <script>
+        jQuery(function () {
+            jQuery('.date-picker').datetimepicker({
+                format: 'Y-m-d',
+                onShow: function (ct) {
+                    this.setOptions({
+                        maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                    })
+                },
+                timepicker: false
+            });
+        });
+
+        jQuery.validator.addMethod('validdateofbirth', function(value, element) {
+            var date_of_birth = new Date($('#id_dateOfBirth').val());
+            var today = new Date();
+
+            if (date_of_birth < today) {
+                var age = today.getFullYear() - date_of_birth.getFullYear();
+                var m = today.getMonth() - date_of_birth.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < date_of_birth.getDate())) {
+                    age--;
+                }                
+                if (age < 13) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        }, 'Please enter a valid date of birth');
+
+        $('#personal_form').validate({
+            rules: {
+                dateOfBirth: {
+                    required: true,
+                    validdateofbirth: true
+                }
+            }
+        });
+
+        /* SCRIPT TO OPEN THE MODAL WITH THE PREVIEW */
+        $('#id_profile_pic').on('change', function () {
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $("#image").attr("src", e.target.result);
+                    $("#modalCrop").modal("show");
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        /* SCRIPTS TO HANDLE THE CROPPER BOX */
+        var $image = $("#image");
+        var cropBoxData;
+        var canvasData;
+        $("#modalCrop").on("shown.bs.modal", function () {
+            $image.cropper({
+                viewMode: 1,
+                aspectRatio: 1 / 1,
+                minCropBoxWidth: 80,
+                minCropBoxHeight: 80,
+                ready: function () {
+                    $image.cropper("setCanvasData", canvasData);
+                    $image.cropper("setCropBoxData", cropBoxData);
+                }
+            });
+        }).on("hidden.bs.modal", function () {
+            cropBoxData = $image.cropper("getCropBoxData");
+            canvasData = $image.cropper("getCanvasData");
+            $image.cropper("destroy");
+        });
+
+        // Enable zoom in button
+        $(".js-zoom-in").click(function () {
+            $image.cropper("zoom", 0.1);
+        });
+
+        // Enable zoom out button
+        $(".js-zoom-out").click(function () {
+            $image.cropper("zoom", -0.1);
+        });
+
+        /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
+        $(".js-crop-and-upload").click(function () {
+            var cropData = $image.cropper("getData");
+            $("#id_x").val(cropData["x"]);
+            $("#id_y").val(cropData["y"]);
+            $("#id_height").val(cropData["height"]);
+            $("#id_width").val(cropData["width"]);
+            // $("#personal_form").submit();
+            $('#modalCrop').modal('hide');
+        });
+    </script>
+{% endblock %}

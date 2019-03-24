@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'create-request-applicant' %}"><i
+                    class="icon icon-plus-circle"></i> Add New Applicant</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="applicant_form" id="applicant_form" novalidate="novalidate">
+                    {% csrf_token %}
+
+                    {% if form.instance.id %}
+                        <input type="hidden" name="user" value="{{ form.user.value }}">
+                        <input type="hidden" name="ip_address" value="{{ form.ip_address.value }}">
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">First Name:</label>
+                            {{form.first_name}}
+                            {% if form.errors.first_name %}
+                            <p class="color-red">{{form.errors.first_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Last Name</label>
+                            {{form.last_name}}
+                            {% if form.errors.last_name %}
+                            <p class="color-red">{{form.errors.last_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Email</label>
+                            {% if not form.instance.id %}
+                                {{form.email}}
+                            {% else %}
+                                <input type="email" value="{{ form.email.value }}" class="form-control r-0 light s-12" disabled="True">
+                                <input type="hidden" name="email" value="{{ form.email.value }}">
+                            {% endif %}
+                            {% if form.errors.email %}
+                            <p class="color-red">{{form.errors.email.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Status</label>
+                            {{form.status}}
+                            {% if form.errors.status %}
+                            <p class="color-red">{{form.errors.status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Location:</label>
+                            {{form.location}}
+                            {% if form.errors.location %}
+                                <p class="color-red">{{form.errors.location.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Mobile Number</label>
+                            {{form.phone_no}}
+                            {% if form.errors.phone_no %}
+                            <p class="color-red">{{form.errors.phone_no.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+
+
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    // check whether the email is already used
+    $("input[name='email']").on('change', function () {
+        var email = $(this).val();
+        $.ajax({
+            url: '/ajax/validate-email/' + email,
+            dataType: 'json',
+            success: function (data) {
+                if (data['is_taken'] != false) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: data['error_message'],
+                    });
+                    $("input[name='email']").val('');
+                }
+            }
+        });
+    });
+
+
+    $('#applicant_form').validate({
+        rules: {
+            email: {
+                required: true,
+                email: true
+            }
+        }
+    });
+</script>
+{% endblock %}

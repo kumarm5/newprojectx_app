@@ -1,0 +1,105 @@
+{% extends 'home/index.html' %}
+
+{% block style %}
+<style>
+        body{
+            font-family: 'Roboto', sans-serif;
+        }
+        .error{
+            color: red;
+        }
+        .card-body{
+            min-height: 160px;
+        }            
+        .footer {
+            text-align: center;
+        }
+        .container-fluid {
+            padding-right: 0px !important;
+            padding-left: 0px !important;
+        }
+        .logo-img{
+            width: 100px;
+            height: 100px;
+            margin-top: 10px;
+        }
+        .book-demo{
+            margin-right: 22px;
+            margin-top: 70px;
+            border-radius: 0.5rem;
+            background-color: #002060;
+            color: #ffffff;
+        }
+
+        .book-demo:hover{
+            color: #ffffff;
+        }
+
+        .navbar{
+            z-index:9;
+        }
+
+        #fullCarousel{
+            position:absolute;
+            width:100%;
+            top:0;
+        }
+
+    </style>
+
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row" id="platform">
+        <div class="col-md-12">
+            <br><br>
+            <h3 class="text-center"><u>PLATFORM</u></h3>
+            <br>
+            <h5>YOUR DATA IS SECURE</h5>
+            <p>Data security is of prime importance and we have taken all necessary steps to ensure your data is secured 
+                and hosted on high availability secured servers. </p>
+            <ul>
+                <li>Hosted on AWS Mumbai Instance</li>
+                <li>Completely encrypted database</li>
+                <li>Documents and data stored separately with dynamic encryption during transactions</li>
+                <li>IP address tracking and audit logs for application login and transaction activity</li>
+                <li>We provide API’s to connect to your HR or ATS systems</li>
+            </ul>
+        </div>
+
+        <div class="col-md-12">
+            <h5>GDPR Compliance</h5>
+            <p>We follow the following 7 Key Principles of the GDPR</p>
+            <p>The GDPR encourages businesses to be responsible about an
+                individual’s data. By ensuring protection and privacy of this data, businesses earn customer trust and they are
+                likely to engage better with the business. GDPR provides a framework for businesses to standardize and regularize
+                real-world security and privacy needs of an individual's data used for business purposes. The key principles which
+                the GDPR requires businesses to operate on are:</p>
+            <ul>
+                <li>Lawful, fair and transparent processing: Emphasizes transparency for all individuals i.e. when data is
+                    collected, businesses must be clear as to why data is being collected and what will it be used for.</li>
+                <li>Purpose limitation: Collect data, only for the purpose you need it for. That is, data collected for specific
+                    purposes/reasons cannot be further processed in a manner incompatible with those purposes/reasons.</li>
+                <li>Data minimization: Ensure data captured is adequate, relevant and limited. Based on this principle,
+                    organizations must ensure they store minimum amount of data required for their purpose.</li>
+                <li>Accurate and up-to-date processing: Data controllers must ensure information remains accurate, valid and fit
+                    for purpose. To comply, organizations must institute processes and policies to address how they maintain data
+                    they are processing and storing it.</li>
+                <li>Limitation of storage in a form that permits identification: Have control over storage and movement of data
+                    within the organization. This includes implementing and enforcing data retention policies, and preventing
+                    unauthorised movement and storage of data.</li>
+                <li>Confidential and secure: An organization collecting and processing data is solely responsible for implementing
+                    appropriate security measures to protect the individuals data.</li>
+                <li>Accountability and liability: Organizations must be able to demonstrate adoption of necessary steps to protect
+                    an individual’s personal data, and be able to pull up every step within the GDPR strategy as evidence.</li>
+            </ul>
+        </div>        
+    </div>
+</div>
+{% endblock %}
+
+<div class="footer"><strong>Trademark & Copyright 2019 BlackStar LLC.</strong>  |  All rights reserved.</div>
+
+{% block script %}
+{% endblock %}

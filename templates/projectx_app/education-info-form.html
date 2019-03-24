@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Education Information {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'education-info-listing' %}"><i class="icon icon-list"></i>All Education
+                Information</a>
+        </li>
+        <li>
+            <a class="nav-link active" href="{% url 'create-education-info' %}"><i class="icon icon-plus-circle"></i>
+                Add New
+                Education Information</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="education_form" id="education_form" novalidate="novalidate">
+                    {% csrf_token %}
+
+                    {% if form.instance.id %}
+                        <input type="hidden" name="user" value="{{ form.user.value }}">
+                    {% else %}
+                        <input type="hidden" name="user" value="{{ request.user.id }}">
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Degree/ Diploma/ Certificate*</label>
+                            {{form.degree}}
+                            {% if form.errors.degree %}
+                            <p class="color-red">{{form.errors.degree.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">University/ Board*</label>
+                            {{form.university}}
+                            {% if form.errors.university %}
+                            <p class="color-red">{{form.errors.university.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">College/ School/ Institute</label>
+                            {{form.college}}
+                            {% if form.errors.college %}
+                            <p class="color-red">{{form.errors.college.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">From</label>
+                            {{form.from_f}}
+                            {% if form.errors.from_f %}
+                            <p class="color-red">{{form.errors.from_f.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">To</label>
+                            {{form.to}}
+                            {% if form.errors.to %}
+                            <p class="color-red">{{form.errors.to.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Cumulative Grade</label>
+                            {{form.grade}}
+                            {% if form.errors.grade %}
+                            <p class="color-red">{{form.errors.grade.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+</script>
+{% endblock %}

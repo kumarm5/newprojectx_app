@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    My Cases {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'vendor-user-my-cases' %}"><i class="icon icon-list"></i>All
+                Cases</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .disabled {
+        pointer-events: none;
+        background-color: #e9ecef;
+        color: #495057;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <h3 class="text-center"><u>Task Name: {{ form.task_name.value }}</u></h3>
+                        <br>
+                        <form method="POST" id="my-case-form" enctype="multipart/form-data">
+                            {% csrf_token %}                            
+                            {% if form.instance.id %}
+                            <input type="hidden" value="{{ form.myrequest.value }}" name="myrequest">
+                            {% if form.task.value %}
+                                <input type="hidden" value="{{ form.task.value }}" name="task">
+                            {% endif %}
+                            <input type="hidden" value="{{ form.co_onboarding_type.value }}" name="co_onboarding_type">
+                            <input type="hidden" value="{{ form.company.value }}" name="company">
+                            <input type="hidden" value="{{ form.step_id.value }}" name="step_id">
+                            <input type="hidden" value="{{ form.task_name.value }}" name="task_name">
+                            {% if form.is_vendor_action.value == True %}
+                                <input type="hidden" value="{{ form.vendor.value }}" name="vendor">
+                                <input type="hidden" value="{{ form.vendor_user.value }}" name="vendor_user">
+                            {% endif %}
+
+                            {% if form.is_vendor_action.value == False %}
+                                <input type="hidden" value="{{ form.send_to_candidate.value }}" name="send_to_candidate">
+                            {% endif %}
+
+                            <input type="hidden" value="{{ form.request_due_date.value }}" name="request_due_date">
+                            {% endif %}
+
+                            <input type="hidden" value="{{ request.user.id }}" name="owner">
+
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Applicant Name: </label>
+                                    <input type="text" class="form-control s-12" disabled value="{{ form.instance.myrequest.applicant.user.first_name }} {{ form.instance.myrequest.applicant.user.last_name }}">
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Today's Date: </label>
+                                    <input type="text" class="form-control s-12" disabled value="{{ form.current_date.value|date:'d-m-Y' }}">
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Applicant ID: </label>
+                                    <input type="text" class="form-control s-12" disabled value="{{ form.instance.myrequest.applicant.id }}">
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Order #: </label>
+                                    <input type="text" class="form-control s-12" disabled value="{{ form.instance.id }}">
+                                </div>
+                                {% if form.is_vendor_action.value %}
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Status</label>
+                                    {{form.progress_status}}
+                                    {% if form.errors.job_id %}
+                                    <p class="color-red">{{form.errors.job_id.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Result Status</label>
+                                    {{form.result}}
+                                    {% if form.errors.result %}
+                                    <p class="color-red">{{form.errors.result.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if form.is_vendor_action.value %}
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-12">
+                                    <label class="form-label">Upload Report</label>
+                                    {{ form.file_name }}
+                                    {% if form.errors.result %}
+                                    <p class="color-red">{{form.errors.result.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <br><br>
+                            <div class="row">
+                                <div class="col-sm-12 col-xs-12">
+                                    {{ form.result_comment }}
+                                    {% if form.result_comment.result %}
+                                    <p class="color-red">{{form.result_comment.result.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <br><hr><br>
+                            {% if form.is_vendor_action.value %}                        
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <label class="form-label">Medical Officer’s comment</label>
+                                    {{ form.cmo_manager_comment }}
+                                    {% if form.errors.cmo_manager_comment %}
+                                        <p class="color-red">{{form.errors.cmo_manager_comment.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-sm-6 col-xs-12">
+                                    <label class="form-label">CMO Status</label>
+                                    {{ form.cmo_manager_status }}
+                                    {% if form.errors.cmo_manager_status %}
+                                        <p class="color-red">{{form.errors.cmo_manager_status.as_text}}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% if form.is_vendor_action.value == False %}
+                                <div class="row">
+                                    <div class="col-sm-6 col-xs-12">
+                                        <label class="form-label">CMO Status</label>
+                                        {{ form.cmo_manager_status }}
+                                        {% if form.errors.cmo_manager_status %}
+                                            <p class="color-red">{{form.errors.cmo_manager_status.as_text}}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-sm-6 col-xs-12">
+                                        <label class="form-label">Result Status</label>
+                                        {{form.result}}
+                                        {% if form.errors.result %}
+                                        <p class="color-red">{{form.errors.result.as_text}}</p>
+                                        {% endif %}
+                                        <br>
+                                    </div>
+                                    <div class="col-sm-12 col-xs-12">
+                                        <label class="form-label">Medical Officer’s comment</label>
+                                        {{ form.cmo_manager_comment }}
+                                        {% if form.errors.cmo_manager_comment %}
+                                            <p class="color-red">{{form.errors.cmo_manager_comment.as_text}}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <br>
+                            <div class="row text-center">
+                                <div class="col-md-12">
+                                    <input type="submit" class="btn btn-success s-12" value="Save">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+
+        jQuery.validator.addMethod("CheckValidResult", function (value, element) {
+            var progress_status = $('#id_progress_status').val();
+            var result = $('#id_result').val();
+            var task_name = $('input[name="task_name"]').val();
+            var cmo_manager_status = $('#id_cmo_manager_status').val();
+
+            // Assigned Status validation
+            if (progress_status == 'Assigned') {
+                if (result == "") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            // In Progress Status validation
+            if (progress_status == 'In Progress') {
+                if ((result == "") || (result == "Document Requested again")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            // Completed Status validation
+            if ((progress_status == 'Completed')) {
+                if ((result == "All Clear") || (result == "Minor Issues") || (result == "Serious medical condition")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            // Cmo manager status
+            if((cmo_manager_status == 'Reject') || (cmo_manager_status == 'Approve')){
+                if ((result == "All Clear") || (result == "Minor Issues") || (result == "Serious medical condition")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+        }, "Please select valid result status");
+
+
+    $('#my-case-form').validate({
+        rules: {
+            progress_status: {
+                required: true
+            },
+            cmo_manager_status: {
+                required: true
+            },
+            result: {
+                CheckValidResult: true
+            },
+            result_comment: {
+                required: function () {
+                    var progress_status = $('#id_progress_status').val();
+                    var result = $('#id_result').val();
+                    if ((progress_status == 'Completed') && (result == 'Request can not be processed')) {
+                        return true;
+                    } else if ((progress_status == 'Completed') && (result == 'Document Requested again')) {
+                        return true;
+                    }
+                }
+            },
+            file_name: {
+                required: function () {
+                    var progress_status = $('#id_progress_status').val();
+                    var result = $('#id_result').val();
+                    if ($('#file_name-clear_id').length) {
+                        return false;
+                    } else if ((progress_status == 'Completed') && (result == 'All Clear')) {
+                        return true;
+                    } else if ((progress_status == 'Completed') && (result == 'Failed')) {
+                        return true;
+                    }
+                }
+            },
+            cmo_manager_comment: {
+                required: true
+            },
+            cmo_manager_status: {
+                required: true
+            }
+        }
+    });
+</script>
+{% endblock %}

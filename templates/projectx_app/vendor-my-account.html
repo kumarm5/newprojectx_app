@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    My Account {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'vendor-admin-account-detail' %}"><i class="icon icon-list"></i>My Account</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="vendor_form" id="vendor_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if form.instance.id %}
+                        <input type="hidden" name="user" value="{{ form.user.value }}">
+                        <input type="hidden" name="owner" value="{{ form.owner.value }}">
+                        <input type="hidden" name="service_provider_type" value="{{ form.service_provider_type.value }}">
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Company Vendor Name</label>
+                            {{form.vendor_company_name}}
+                            {% if form.errors.vendor_company_name %}
+                                <p class="color-red">{{form.errors.vendor_company_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{form.country}}
+                            {% if form.errors.country %}
+                                <p class="color-red">{{form.errors.country.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Address</label>
+                            {{form.address}}
+                            {% if form.errors.address %}
+                                <p class="color-red">{{form.errors.address.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Phone Number</label>
+                            {{form.vendor_phone}}
+                            {% if form.errors.vendor_phone %}
+                                <p class="color-red">{{form.errors.vendor_phone.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Admin</label>
+                            {{form.vendor_admin}}
+                            {% if form.errors.vendor_admin %}
+                                <p class="color-red">{{form.errors.vendor_admin.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Admin Phone Number</label>
+                            {{form.admin_phone}}
+                            {% if form.errors.admin_phone %}
+                                <p class="color-red">{{form.errors.admin_phone.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country Code</label>
+                            {{form.country_code}}
+                            {% if form.errors.country_code %}
+                                <p class="color-red">{{form.errors.country_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Area Code</label>
+                            {{form.area_code}}
+                            {% if form.errors.area_code %}
+                                <p class="color-red">{{form.errors.area_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Email</label>                            
+                            <input type="hidden" name="email" value="{{form.email.value}}" maxlength="256" id="id_email" class="form-control r-0 light s-12 valid" aria-invalid="false">
+                            <input type="email" name="newemail" value="{{form.email.value}}" maxlength="256" id="id_email" class="form-control r-0 light s-12 valid" aria-invalid="false" disabled>
+                            {% if form.errors.email %}
+                                <p class="color-red">{{form.errors.email.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Tax Number</label>
+                            {{form.tax_number}}
+                            {% if form.errors.tax_number %}
+                                <p class="color-red">{{form.errors.tax_number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md s-12 btn-primary">Save</button>
+                        </div>
+                    </div>
+                </form>
+                <br><hr><br>
+                <a href="{% url 'create-vendor-user' %}" class="btn btn-success s-12">Create Vendor User</a>
+                <br><br>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Business Phone</th>
+                            <th>Email</th>
+                            <th>Admin</th>                            
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if vendor_users %}
+                        {% for vendor_user in vendor_users %}
+                        <tr>
+                            <td>{{ vendor_user.id }}</td>
+                            <td>{{ vendor_user.user.first_name }}</td>
+                            <td>{{ vendor_user.user.last_name }}</td>
+                            <td>{{ vendor_user.user.mobile_number }}</td>
+                            <td>{{ vendor_user.user.email }}</td>
+                            <td>
+                                {% if vendor_user.user.user_type == 4 %}
+                                    No
+                                {% else %}
+                                    Yes
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if vendor_user.user.is_active %}
+                                    Active    
+                                {% else %}
+                                    InActive
+                                {% endif %}
+                            </td>
+                            <td><a href="{% url 'vendor-account-user-edit' id=vendor_user.id %}"><i class="icon-edit"></i></a></td>
+                        </tr>
+                        {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    $('#vendor_form').validate({
+        rules: {
+            country: {
+                required: true
+            },
+            country_code: {
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            vendor_admin: {
+                required: true
+            }
+        }
+    });
+</script>
+{% endblock %}

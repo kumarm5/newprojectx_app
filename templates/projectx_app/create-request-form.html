@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Documents {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>All
+                Request</a>
+        </li>        
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <form method="post" action="{% url 'create-request-form' type_id=type_id user_id=user_id %}" enctype="multipart/form-data"
+            name="create-request-form">
+            {% csrf_token %}
+            <div class="row text-center">
+                <div class="col-sm-12 col-xs-12">
+                    <h3>{{ coonboarding.co_onboarding_type_name }}</h3>
+                </div>
+            </div>
+
+            {% if bgv_documents %}
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                    <h5>Step 1 - BGV</h5>
+                </div>
+                <br><br>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Background Verification Documents</label>
+                    <ul>
+                        {% for bgv_document in bgv_documents %}
+                        <li>{{ bgv_document }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if coonboardingtasks %}
+                {% for coonboardingtask in coonboardingtasks %}
+                {% if coonboardingtask.step_id == "1" %}
+                <input type="hidden" name="task_id" value="{{ coonboardingtask.id }}">
+                <div class="col-sm-4 col-xs-12">
+                    <label>Vendor: </label>
+                    {{ coonboardingtask.vendor.vendor_name }}
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Due Day: </label>
+                    {{ coonboardingtask.due_date }}
+                </div>
+                <div class="col-sm-12 col-xs-12">
+                    <label>Comment: </label>
+                    {{ coonboardingtask.comment }}
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
+            <br><br>
+            {% endif %}
+
+            {% if ref_details %}
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                    <h5>Step 2 - REF Check</h5>
+                </div>
+                <br><br>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Reference Checks</label>
+                    <ul>
+                        {% for ref_detail in ref_details %}
+                        <li>{{ ref_detail.reference_check.reference_name }}:- {{ ref_detail.no_of_references }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% if coonboardingtasks %}
+                {% for coonboardingtask in coonboardingtasks %}
+                {% if coonboardingtask.step_id == "2" %}
+                <input type="hidden" name="task_id" value="{{ coonboardingtask.id }}">
+                <div class="col-sm-4 col-xs-12">
+                    <label>Vendor: </label>
+                    {{ coonboardingtask.vendor.vendor_name }}
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Due Days: </label>
+                    {{ coonboardingtask.due_date }}
+                </div>
+                <div class="col-sm-12 col-xs-12">
+                    <label>Comment: </label>
+                    {{ coonboardingtask.comment }}
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
+            <br><br>
+            {% endif %}
+
+            {% if hr_details %}
+            <div class="row">
+                <div class="col-sm-12 col-xs-12">
+                    <h5>Step 3 - HR Forms</h5>
+                </div>
+                <br><br>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Templates</label>
+                    <ul>
+                        {% for hr_detail in hr_details %}
+                        <li>{{ hr_detail.template.template_name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <br><br>
+                {% if coonboardingtasks %}
+                {% for coonboardingtask in coonboardingtasks %}
+                {% if coonboardingtask.step_id == "3" %}
+                <input type="hidden" name="task_id" value="{{ coonboardingtask.id }}">
+                <div class="col-sm-4 col-xs-12">
+                    <label>Vendor: </label>
+                    {{ coonboardingtask.vendor.vendor_name }}
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <label>Due Days: </label>
+                    {{ coonboardingtask.due_date }}
+                </div>
+                <div class="col-sm-12 col-xs-12">
+                    <label>Comment: </label>
+                    {{ coonboardingtask.comment }}
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
+            <br>
+            {% endif %}
+            <div class="row">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-md btn-primary s-12">Send Request</button>
+                </div>
+            </div>
+            <br>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Identification Information {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'id-info-listing' %}"><i class="icon icon-list"></i>All Identities</a>
+        </li>
+        <li>
+            <a class="nav-link active" href="{% url 'create-id-info' %}"><i class="icon icon-plus-circle"></i> Add New
+                Identity</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="identity_form" id="identity_form" novalidate="novalidate">
+                    {% csrf_token %}
+
+                    <input type="hidden" name="user" value="{{ request.user.id }}">
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">ID Type</label>
+                            {{form.document_type}}
+                            {% if form.errors.document_type %}
+                            <p class="color-red">{{form.errors.document_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">ID Number</label>
+                            {{form.idNumber}}
+                            {% if form.errors.idNumber %}
+                            <p class="color-red">{{form.errors.idNumber.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Name as appear on document</label>
+                            {{form.idName}}
+                            {% if form.errors.idName %}
+                            <p class="color-red">{{form.errors.idName.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Date of Issue</label>
+                            {{form.issueDate}}
+                            {% if form.errors.issueDate %}
+                            <p class="color-red">{{form.errors.issueDate.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Expiry Date</label>
+                            {{form.expiryDate}}
+                            {% if form.errors.expiryDate %}
+                            <p class="color-red">{{form.errors.expiryDate.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country of issue</label>
+                            {{form.country}}
+                            {% if form.errors.country %}
+                            <p class="color-red">{{form.errors.country.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">State</label>
+                            {{form.state}}
+                            {% if form.errors.state %}
+                            <p class="color-red">{{form.errors.state.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">City</label>
+                            {{form.issueCity}}
+                            {% if form.errors.issueCity %}
+                            <p class="color-red">{{form.errors.issueCity.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        jQuery(function () {
+            jQuery('.date-picker').datetimepicker({
+                format: 'Y-m-d',
+                onShow: function (ct) {
+                    this.setOptions({
+                        maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                    })
+                },
+                timepicker: false
+            });
+        });
+
+        jQuery.validator.addMethod('validpannumber', function(value, element) {
+            var regExp = /[a-zA-z]{5}\d{4}[a-zA-Z]{1}/;
+            var txtpan = $('#id_idNumber').val();
+            if (txtpan.length == 10) {
+                if (txtpan.match(regExp)) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }, 'Not a valid PAN number');
+
+        jQuery.validator.addMethod('validissuedate', function(value, element) {
+            var issueDate = new Date($('#id_issueDate').val());
+            var today = new Date();
+            
+            if (issueDate < today) {
+                return true;
+            } else {
+                return false;
+            }
+        }, 'Please enter a valid issue date');
+
+        jQuery.validator.addMethod('validexpirydate', function(value, element) {
+            var expiryDate = new Date($('#id_expiryDate').val());
+            var today = new Date();
+            
+            if (expiryDate > today) {
+                return true;
+            } else {
+                return false;
+            }
+        }, 'Please enter a valid expiry date');
+
+        $('#identity_form').validate({
+        rules: {
+            country: {
+                required: true
+            },
+            idNumber: {
+                required: true,
+                validpannumber: true
+            },
+            issueDate: {
+                validissuedate: true
+            },
+            expiryDate:{
+                validexpirydate: true
+            }
+        }
+    });
+    </script>
+{% endblock %}

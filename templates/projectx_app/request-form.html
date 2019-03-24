@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" action="" name="create-request-form">
+                    {% csrf_token %}                    
+                    {% if form.instance.id %}
+                    <input type="hidden" name="recruiter" value="{{ form.recruiter.value }}">
+                    <input type="hidden" name="applicant" value="{{ form.applicant.value }}">
+                    <input type="hidden" name="company" value="{{ form.company.value }}">
+                    <input type="hidden" name="created_by" value="{{ form.created_by.value }}">
+                    <input type="hidden" name="co_onboarding_type" value="{{ form.co_onboarding_type.value }}">
+                    {% endif %}
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Job/Role Id</label>
+                            {{form.job_id}}
+                            {% if form.errors.job_id %}
+                            <p class="color-red">{{form.errors.job_id.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Position</label>
+                            {{form.position_id}}
+                            {% if form.errors.position_id %}
+                            <p class="color-red">{{form.errors.position_id.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Hiring Manager</label>
+                            {{form.hiring_manager_user}}
+                            {% if form.errors.hiring_manager %}
+                            <p class="color-red">{{form.errors.hiring_manager.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>                    
+                    <br>
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md s-12 btn-primary">Save</button>
+                        </div>
+                    </div>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

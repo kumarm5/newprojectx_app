@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    Reimbursement {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'my-reimbursement' %}"><i class="icon icon-list"></i>Manage Reimbursement</a>
+        </li>
+        <li>
+            <a class="nav-link" href="{% url 'create-reimbursement' %}"><i class="icon icon-plus-circle"></i> Add New Reimbursement</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Company</th>
+                                    <th>Onboarding Type</th>
+                                    <th>Files</th>
+                                    <!-- <th>Action</th> -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                    {% for reimbursement in object_list %}
+                                    <tr>
+                                        <td>{{ reimbursement.system_company_setup }}</td>
+                                        <td>{{ reimbursement.co_onboarding }}</td>
+                                        <td>
+                                            {% autoescape off %}
+                                                {{ reimbursement.id|get_reimbursement_files }}
+                                            {% endautoescape %}
+                                        </td>
+                                        <!-- <td class="text-center"><a href="{% url 'edit-reimbursement' reimbursement_id=reimbursement.id %}"><i class="icon-edit text-info rpo-edit"></i></a></td> -->
+                                    </tr>
+                                    {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Vendor Account Details {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'vendor-account-details' %}"><i class="icon icon-list"></i>All Users</a>
+        </li>
+
+        <li>
+            <a class="nav-link" href="{% url 'vendor-user-create' %}"><i
+                    class="icon icon-plus-circle"></i> Add New User</a>
+        </li>
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<br/>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+                <h4>{{vendorObj.vendor_company_name}}</h4>
+                <h6>{{vendorObj.address}}</h6>
+                <h5>{{vendorObj.country_code}}</h5>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <h5>{{vendorObj.country_code}}</h5>
+            <h5>{{vendorObj.country_code}}</h5>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+
+    <div class="col-md-4" hidden>
+        <div class="card shadow ">
+            <ul class="list-group list-group-flush" style="font-size:12px">
+                <li class="list-group-item">
+                    <i class="icon icon-user text-blue"></i> {{vendorObj.vendor_company_name}}
+                </li>
+                <li class="list-group-item">
+                    <i class="icon icon-add_location text-yellow"></i>{{vendorObj.address}}
+                </li>
+                <li class="list-group-item">
+                    <i class="icon icon-phone text-purple"></i>{{vendorObj.vendor_phone}}
+                </li>
+                <li class="list-group-item">
+                    <i class="icon icon-email text-red"></i>{{vendorObj.email}}
+                </li>
+                <li class="list-group-item">
+                    <i class="icon icon-taxes text-green"></i>{{vendorObj.tax_number}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                            <tr class="no-b">
+                                <th>Vendor Name</th>
+                                <th>Contact Person</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Contract End Date</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if object_list %}
+                            {% for vendor in object_list %}
+                            <tr>
+                                <td>{{vendor.vendor_name}}</td>
+                                <td>{{vendor.owner}}</td>
+                                <td>{{vendor.email}}</td>
+                                <td>
+                                    {% if rpo.contract_status == True %}
+                                    Active
+                                    {% else %}
+                                    InActive
+                                    {% endif %}
+                                </td>
+                                <td>{{vendor.contract_end_date}}</td>
+                                <td>
+                                    <a href="{%url 'edit-vendor-info' id=vendor.id %}"><i class="icon-edit"></i></a>
+                                    &nbsp;
+                                    <a href="#"><i class="icon-trash text-danger-o text-danger vendor-delete" data-id="{{ vendor.user_id }}"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

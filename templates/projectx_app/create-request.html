@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="create-request" id="create-request" novalidate="novalidate">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-9">
+                            <h3 class="text-center">Manage Onboarding -> Initiate Onboarding Request</h3>
+                            <br>
+                            <strong>Applicant Name: {{ username }}</strong>
+                            <br><br>
+                            <table class="table table-bordered">
+                                <thead>
+                                    <th>Steps</th>
+                                    <th>Task Name</th>
+                                    <th>Vendor</th>
+                                    <th>Due Date</th>
+                                </thead>
+                                <tbody class="on-boarding-data">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-3 text-right">
+                            <select class="form-control r-0 light s-12 onboarding-type" name="onboarding_type">
+                                <option value=""> Select Recruitment Type </option>
+                                {% for coonboardingtype in coonboardingtypes %}
+                                    <option value="{{ coonboardingtype.id }}"> {{ coonboardingtype }} </option>
+                                {% endfor %}
+                            </select>
+                            <br>
+                            <input type="hidden" class="form-control" name="applicant_id" value="{{ applicant_id }}">
+                            <input type="text" class="form-control r-0 light s-12" name="job_id" placeholder="Job/Role Id">
+                            <br>
+                            <input type="text" class="form-control r-0 light s-12" name="position" placeholder="Position">
+                            <br>
+                            <input type="text" class="form-control r-0 light s-12" name="hiring_manager" placeholder="Hiring Manager">
+                            <br>
+                            <input type="submit" class="btn s-12 btn-success" value="Send Request">
+                        </div>
+                    </div>
+                    <br>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        $('.onboarding-type').on('change', function(){
+            type_id = $(this).val();
+            applicant_id = $("input[name='applicant_id']").val();
+            $.ajax({
+                type : "GET",
+                url: '/ajax/search-onboarding-tasks/'+type_id+'/'+applicant_id,
+                success: function (data) {
+                    if (data[0]['is_requested'] == 'true'){
+                        $.alert('<strong>This user is already requested for this onboarding type.</strong>');
+                        $(".onboarding-type").val($(".onboarding-type option:first").val());
+                    } else {
+                        $('.on-boarding-data').empty();
+                        $.each(data, function (key, val) {
+                            $('.on-boarding-data').append("\
+                                <tr>\
+                                    <td><input type='checkbox' name='task_id' value="+ val['id'] + "> " + val['step_id'] + "</td>\
+                                    <td>"+ val['task_name'] + "</td>\
+                                    <td>"+ val['vendor'] + "</td>\
+                                    <td>"+ val['due_date'] + "</td>\
+                                </tr>\
+                            ");
+                        });
+                    }
+                }
+            });            
+        });
+
+        // $('#create-request').on('submit', function(e){
+        //     e.preventDefault();
+        //     onboarding_type = $('.onboarding-type').val();
+        //     if(onboarding_type == ""){
+        //         $.alert('<strong>Please select onboarding type</strong>');
+        //     } else {
+        //         $('#create-request').submit();
+        //     }
+        // });
+
+    </script>
+{% endblock %}

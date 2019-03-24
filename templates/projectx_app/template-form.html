@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    My Templates {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'template-listing' %}"><i class="icon icon-list"></i>Manage Templates</a>
+        </li>
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'create-template-info' %}"><i
+                    class="icon icon-plus-circle"></i> Add New Template</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="template_form" id="template_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}                    
+
+                    {% if form.instance.id %}
+                    <input type="hidden" name="company" value="{{ form.company.value }}">
+                    {% endif %}
+                    <input type="hidden" name="owner" value="{{ request.user.id }}">
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Template Name:</label>
+                            {{form.template_name}}
+                            {% if form.errors.template_name %}
+                            <p class="color-red">{{form.errors.template_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Template Type</label>
+                            {{form.template_type}}
+                            {% if form.errors.template_type %}
+                            <p class="color-red">{{form.errors.template_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Status</label>
+                            {{form.template_status}}
+                            {% if form.errors.template_status %}
+                                <p class="color-red">{{form.errors.template_status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">                        
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Upload Document</label>
+                            {{form.template_doc}}
+                            {% if form.errors.template_doc %}
+                            <p class="color-red">{{form.errors.template_doc.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+</script>
+{% endblock %}

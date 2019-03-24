@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Setup Company {{ block.super }}
+{% endblock %}
+
+{% block style %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.css">
+    <style>
+        #logo_image-clear_id, label[for="logo_image-clear_id"]{
+            display:none;
+        }
+    </style>
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'company-listing' %}"><i class="icon icon-list"></i>Manage Companies</a>
+        </li>
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'create-company-info' %}"><i
+                    class="icon icon-plus-circle"></i> Add New Company</a>                
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="company_form" id="company_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}                    
+                    {% if form.instance.id %}
+                        <input type="hidden" name="company_id" value="{{ form.company_id.value }}">                        
+                    {% endif %}
+                    <input type="hidden" name="owner" value="{{ request.user.id }}">
+
+                    {{ form.x }}
+                    {{ form.y }}
+                    {{ form.width }}
+                    {{ form.height }}
+    
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Company Name:</label>
+                            {{form.company_name}}
+                            {% if form.errors.company_name %}
+                            <p class="color-red">{{form.errors.company_name.as_text}}</p>
+                            {% endif %}
+                        </div>                        
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{form.country}}
+                            {% if form.errors.country %}
+                            <p class="color-red">{{form.errors.country.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Phone No</label>
+                            {{form.phone_no}}
+                            {% if form.errors.phone_no %}
+                            <p class="color-red">{{form.errors.phone_no.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Company Admin</label>
+                            {{form.company_admin}}
+                            {% if form.errors.company_admin %}
+                            <p class="color-red">{{form.errors.company_admin.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country Code</label>
+                            {{form.country_code}}
+                            {% if form.errors.country_code %}
+                            <p class="color-red">{{form.errors.country_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Area Code</label>
+                            {{form.area_code}}
+                            {% if form.errors.area_code %}
+                            <p class="color-red">{{form.errors.area_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Number</label>
+                            {{form.number}}
+                            {% if form.errors.number %}
+                            <p class="color-red">{{form.errors.number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Email</label>
+                            {% if not form.instance.id %}
+                                {{form.email}}
+                            {% else %}
+                                <input type="email" value="{{ form.email.value }}" class="form-control r-0 light s-12" disabled="True">
+                                <input type="hidden" name="email" value="{{ form.email.value }}">
+                            {% endif %}
+                            {% if form.errors.email %}
+                            <p class="color-red">{{form.errors.email.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Annual Contract Value</label>
+                            {{form.annual_contract_value}}
+                            {% if form.errors.annual_contract_value %}
+                            <p class="color-red">{{form.errors.annual_contract_value.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Start Date</label>
+                            {{form.contract_start_date}}
+                            {% if form.errors.contract_start_date %}
+                            <p class="color-red">{{form.errors.contract_start_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract End Date</label>
+                            {{form.contract_end_date}}
+                            {% if form.errors.contract_end_date %}
+                            <p class="color-red">{{form.errors.contract_end_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Upload Contract</label>
+                            {{form.upload_contract}}
+                            {% if form.errors.upload_contract %}
+                            <p class="color-red">{{form.errors.upload_contract.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Tax Number</label>
+                            {{form.tax_number}}
+                            {% if form.errors.tax_number %}
+                            <p class="color-red">{{form.errors.tax_number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Status</label>
+                            {{form.contract_status}}
+                            {% if form.errors.contract_status %}
+                            <p class="color-red">{{form.errors.contract_status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">RPO</label>
+                            {{form.rpo}}
+                            {% if form.errors.rpo %}
+                            <p class="color-red">{{form.errors.rpo.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">RPO Provider</label>
+                            {{form.rpo_provider}}
+                            {% if form.errors.rpo_provider %}
+                            <p class="color-red">{{form.errors.rpo_provider.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Finance Contact</label>
+                            {{form.finance_user_name}}
+                            {% if form.errors.finance_user_name %}
+                                <p class="color-red">{{form.errors.finance_user_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Finance Email</label>
+                            {{form.finance_email}}
+                            {% if form.errors.finance_email %}
+                                <p class="color-red">{{form.errors.finance_email.as_text}}</p>
+                            {% endif %}
+                        </div>                        
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Logo</label>
+                            {{form.logo_image}}
+                            {% if form.errors.logo_image %}
+                            <p class="color-red">{{form.errors.logo_image.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12 submit">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL TO CROP THE IMAGE -->
+<div class="modal fade" id="modalCrop">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Crop the photo</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-11">
+                            <img src="" id="image" style="max-width: 100%;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group pull-left" role="group">
+                    <button type="button" class="btn btn-default js-zoom-in">
+                        <span class="icon-plus"></span>
+                    </button>
+                    <button type="button" class="btn btn-default js-zoom-out">
+                        <span class="icon-minus"></span>
+                    </button>
+                </div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary js-crop-and-upload">Crop and upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropper/4.0.0/cropper.min.js"></script>
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    // check whether the email is already used
+    $("input[name='email']").on('change', function(){
+        var email = $(this).val();
+        $.ajax({
+            url: '/ajax/validate-email/' + email,
+            dataType: 'json',
+            success: function (data) {
+                if(data['is_taken'] != false){
+                    $.alert({
+                        title: 'Alert!',
+                        content: data['error_message'],
+                    });
+                    $("input[name='email']").val('');
+                }
+            }
+        });
+    });
+
+    // $('.submit').on('click', function(event){
+    //     event.preventDefault();
+
+    //     var rpo = $('#id_rpo').val();
+    //     var rpo_provider = $('#id_rpo_provider').val();
+
+    //     if(rpo != ''){
+    //         if(rpo_provider == 'False'){
+    //             $.alert({
+    //                 title: 'Alert!',
+    //                 content: 'Please select RPO Provider to Yes.',
+    //             });
+    //         } else {
+    //             $('form[name="company_form"]').submit();
+    //         }
+    //     }
+
+    //     if(rpo_provider == 'True'){
+    //         if(rpo == ''){
+    //             $.alert({
+    //                 title: 'Alert!',
+    //                 content: 'Please select RPO.',
+    //             });
+    //         } else {
+    //             $('form[name="company_form"]').submit();
+    //         }
+    //     }
+
+    // });
+
+    jQuery.validator.addMethod("greaterThan", 
+        function(value, element, params) {
+            // if start date exist
+            if (jQuery(params).val())
+            {
+                console.log("value exist");
+                if (!/Invalid|NaN/.test(new Date(value))) {
+                    return new Date(value) > new Date($(params).val());
+                }
+
+                return isNaN(value) && isNaN($(params).val()) 
+                    || (Number(value) > Number($(params).val()));
+            }
+            else
+            {
+                // if end date exist
+                if (value)
+                {
+                    return false
+                }
+                else
+                {
+                    return true
+                }
+                
+            }
+             
+        },'Must be greater than contract start date.'
+    );
+
+
+    // validation
+    $('#company_form').validate({
+        rules: {
+            country: {
+                required: true
+            },
+            country_code: {
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            company_admin: {
+                required: true
+            },
+            company_name: {
+                required: true
+            },
+            rpo: {
+                required: function () {
+                    rpo_provider = $('#id_rpo_provider').val();
+                    if (rpo_provider == "True") {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+            },
+            contract_end_date: {
+                greaterThan: "#id_contract_start_date"
+            },
+            contract_status: {
+                required: true
+            }
+        }
+    });
+
+    /* SCRIPT TO OPEN THE MODAL WITH THE PREVIEW */
+    $('#id_logo_image').on('change', function () {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                $("#image").attr("src", e.target.result);
+                $("#modalCrop").modal("show");
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    /* SCRIPTS TO HANDLE THE CROPPER BOX */
+    var $image = $("#image");
+    var cropBoxData;
+    var canvasData;
+    $("#modalCrop").on("shown.bs.modal", function () {
+        $image.cropper({
+            viewMode: 1,
+            aspectRatio: 1 / 1,
+            minCropBoxWidth: 80,
+            minCropBoxHeight: 80,
+            ready: function () {
+                $image.cropper("setCanvasData", canvasData);
+                $image.cropper("setCropBoxData", cropBoxData);
+            }
+        });
+    }).on("hidden.bs.modal", function () {
+        cropBoxData = $image.cropper("getCropBoxData");
+        canvasData = $image.cropper("getCanvasData");
+        $image.cropper("destroy");
+    });
+
+    // Enable zoom in button
+    $(".js-zoom-in").click(function () {
+        $image.cropper("zoom", 0.1);
+    });
+
+    // Enable zoom out button
+    $(".js-zoom-out").click(function () {
+        $image.cropper("zoom", -0.1);
+    });
+
+    /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
+    $(".js-crop-and-upload").click(function () {
+        var cropData = $image.cropper("getData");
+        $("#id_x").val(cropData["x"]);
+        $("#id_y").val(cropData["y"]);
+        $("#id_height").val(cropData["height"]);
+        $("#id_width").val(cropData["width"]);
+        // $("#personal_form").submit();
+        $('#modalCrop').modal('hide');
+    });
+
+</script>
+{% endblock %}

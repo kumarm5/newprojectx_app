@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Reimbursement {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'my-reimbursement' %}"><i class="icon icon-list"></i>Manage Reimbursement</a>
+        </li>
+        <li>
+            <a class="nav-link {% if form.instance %} active {% endif %}" href="{% url 'create-reimbursement' %}"><i class="icon icon-plus-circle"></i> Add New Reimbursement</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+    <div class="row">        
+        <div class="col-md-12">
+            <br>
+            <div class="card mb-3 shadow no-b r-0">
+                <div class="card-body">
+                    <form method="post" name="rpo_form" id="rpo_form" enctype="multipart/form-data">
+                        {% csrf_token %}                        
+                        <input type="hidden" value="{{ request.user.pk }}" name="owner">
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <label class="form-label">Company</label>
+                                {{ form.system_company_setup }}
+                                {% if form.errors.system_company_setup %}
+                                    <p class="color-red">{{form.errors.system_company_setup.as_text}}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 col-xs-12">
+                                <label class="form-label">Onboarding Type</label>
+                                {{ form.co_onboarding }}
+                                {% if form.errors.co_onboarding %}
+                                    <p class="color-red">{{form.errors.co_onboarding.as_text}}</p>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 col-xs-12">
+                                <br>
+                                <label class="form-label">Upload File</label>
+                                <input type="file" name="upload_file" id="id_upload_file" class="form-control r-0 light s-12" multiple="multiple">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="row text-center">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

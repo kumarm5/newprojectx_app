@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    My Vendors {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'vendor-user-listing' %}"><i class="icon icon-list"></i>Manage Vendors</a>
+        </li>
+        {% if not request.user.is_superuser %}
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'vendor-user-create' %}"><i
+                    class="icon icon-plus-circle"></i> Add New Vendor</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="vendor_form" id="vendor_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ co_vendor_form.errors }}
+                    <br>
+                    {% if form.instance.id %}                        
+                        <input type="hidden" name="owner" value="{{ form.owner.value }}">
+                        <input type="hidden" name="vendor" value="{{ form.instance.id }}">
+                        <input type="hidden" name="company" value="{{ company.id }}">
+                    {% endif %}
+
+                    <input type="hidden" name="owner" value="{{ request.user.id }}">
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Company Vendor Name</label>
+                            {{form.vendor_company_name}}
+                            {% if form.errors.vendor_company_name %}
+                                <p class="color-red">{{form.errors.vendor_company_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{form.country}}
+                            {% if form.errors.country %}
+                                <p class="color-red">{{form.errors.country.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Address</label>
+                            {{form.address}}
+                            {% if form.errors.address %}
+                                <p class="color-red">{{form.errors.address.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Phone Number</label>
+                            {{form.vendor_phone}}
+                            {% if form.errors.vendor_phone %}
+                                <p class="color-red">{{form.errors.vendor_phone.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Admin</label>
+                            {{form.vendor_admin}}
+                            {% if form.errors.vendor_admin %}
+                                <p class="color-red">{{form.errors.vendor_admin.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Admin Phone Number</label>
+                            {{form.admin_phone}}
+                            {% if form.errors.admin_phone %}
+                                <p class="color-red">{{form.errors.admin_phone.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country Code</label>
+                            {{form.country_code}}
+                            {% if form.errors.country_code %}
+                                <p class="color-red">{{form.errors.country_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Area Code</label>
+                            {{form.area_code}}
+                            {% if form.errors.area_code %}
+                                <p class="color-red">{{form.errors.area_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Email</label>
+                            {{form.email}}
+                            {% if form.errors.email %}
+                                <p class="color-red">{{form.errors.email.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Tax Number</label>
+                            {{form.tax_number}}
+                            {% if form.errors.tax_number %}
+                                <p class="color-red">{{form.errors.tax_number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br><br>
+                    <br>                    
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Service Provider Type</label>
+                            {{co_vendor_form.service_provider_type}}
+                            {% if co_vendor_form.errors.service_provider_type %}
+                                <p class="color-red">{{co_vendor_form.errors.service_provider_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Status</label>
+                            {{co_vendor_form.status}}
+                            {% if co_vendor_form.errors.status %}
+                                <p class="color-red">{{co_vendor_form.errors.status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Start Date</label>
+                            {{co_vendor_form.contract_start_date}}
+                            {% if co_vendor_form.errors.contract_start_date %}
+                                <p class="color-red">{{co_vendor_form.errors.contract_start_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract End Date</label>
+                            {{co_vendor_form.contract_end_date}}
+                            {% if co_vendor_form.errors.contract_end_date %}
+                                <p class="color-red">{{co_vendor_form.errors.contract_end_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Type</label>
+                            {{co_vendor_form.sys_vendor_type}}
+                            {% if co_vendor_form.errors.sys_vendor_type %}
+                                <p class="color-red">{{co_vendor_form.errors.sys_vendor_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Upload Contract</label>
+                            {{co_vendor_form.upload_contract}}
+                            {% if co_vendor_form.errors.upload_contract %}
+                                <p class="color-red">{{co_vendor_form.errors.upload_contract.as_text}}</p>
+                            {% endif %}
+                        </div>                        
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md s-12 btn-primary">Save</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    // check whether the email is already used
+    $("input[name='email']").on('change', function () {
+        var email = $(this).val();
+        $.ajax({
+            url: '/ajax/validate-email/' + email,
+            dataType: 'json',
+            success: function (data) {
+                if (data['is_taken'] != false) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: data['error_message'],
+                    });
+                    $("input[name='email']").val('');
+                }
+            }
+        });
+    });
+
+    jQuery.validator.addMethod("greaterThan", 
+        function(value, element, params) {
+            // if start date exist
+            if (jQuery(params).val())
+            {
+                console.log("value exist");
+                if (!/Invalid|NaN/.test(new Date(value))) {
+                    return new Date(value) > new Date($(params).val());
+                }
+
+                return isNaN(value) && isNaN($(params).val()) 
+                    || (Number(value) > Number($(params).val()));
+            }
+            else
+            {
+                // if end date exist
+                if (value)
+                {
+                    return false
+                }
+                else
+                {
+                    return true
+                }
+                
+            }
+             
+        },'Must be greater than contract start date.'
+    );
+
+    $('#vendor_form').validate({
+        rules: {
+            country: {
+                required: true
+            },
+            country_code: {
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            vendor_admin: {
+                required: true
+            },
+            contract_end_date: {
+                greaterThan: "#id_contract_start_date"
+            }
+        }
+    });
+</script>
+{% endblock %}

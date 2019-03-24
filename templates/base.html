@@ -1,0 +1,598 @@
+{% load static %}
+{% load filter %}
+<!DOCTYPE html>
+<html lang="eng">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static '/img/Original_on_Transparent.png' %}" type="image/x-icon">
+    <title>360degree</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static '/css/app.css' %}">
+    {% block style %}
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.css">
+    {% endblock %}
+    <style>
+        .loader {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #F5F8FA;
+            z-index: 9998;
+            text-align: center;
+        }
+
+        .plane-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .disabled {
+            pointer-events: none;
+            cursor: default;
+            color: #cecece;
+        }
+
+        .link-disabled {
+            pointer-events: none;
+            cursor: default;
+            color: #cecece;
+            background-color: #D3D3D3;
+        }
+
+        .company-name{            
+            font-size: 1.4rem;
+        }
+
+        .error{
+            color: #ed5564!important;
+        }
+
+        .navbar-nav>.user-menu .user-image {
+            float: left;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+    </style>
+    <!-- Js -->
+    <!--
+    --- Head Part - Use Jquery anywhere at page.
+    --- http://writing.colin-gourlay.com/safely-using-ready-before-including-jquery/
+    -->
+    <script>(function (w, d, u) { w.readyQ = []; w.bindReadyQ = []; function p(x, y) { if (x == "ready") { w.bindReadyQ.push(y); } else { w.readyQ.push(x); } }; var a = { ready: p, bind: p }; w.$ = w.jQuery = function (f) { if (f === d || f === u) { return a } else { p(f) } } })(window, document)</script>
+</head>
+
+<body class="light">
+    <!-- Pre loader -->
+    <div id="loader" class="loader">
+        <div class="plane-container">
+            <div class="preloader-wrapper small active">
+                <div class="spinner-layer spinner-blue">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+
+                <div class="spinner-layer spinner-red">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+
+                <div class="spinner-layer spinner-yellow">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+
+                <div class="spinner-layer spinner-green">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="app">
+        <aside class="main-sidebar fixed offcanvas shadow" data-toggle='offcanvas'>
+            <section class="sidebar">
+                <div class="w-80px ml-6">
+                    <img src="{% static '/img/Original.png' %}" style="margin-left: 100%;">
+                </div>
+                <div class="relative">
+                    <!-- <a data-toggle="collapse" href="#userSettingsCollapse" role="button" aria-expanded="false"
+                        aria-controls="userSettingsCollapse" class="btn-fab btn-fab-sm absolute fab-right-bottom fab-top btn-primary shadow1 ">
+                        <i class="icon icon-cogs"></i>
+                    </a> -->
+                    <div class="user-panel p-3 light mb-2">
+                        <div>
+                            <div class="float-left image">
+                                <!-- if company admin or admin user or rpo user -->
+                                {% if request.user.user_type == 2 or request.user.user_type == 6 or request.user.user_type == 5 %}
+                                    {% if company_logo %}
+                                        <img class="user_avatar" src="{% static '/img/profile_files/' %}{{ company_logo|company_logo_url }}" alt="User Image">
+                                    {% else %}
+                                        <img class="user_avatar" src="{% static '/img/dummy/u1.png' %}" alt="User Image">
+                                    {% endif %}
+                                {% elif request.user.user_type == 1 %} <!-- if user is applicant -->
+                                    {% if profile_pic %}
+                                        <img class="user_avatar" src="{% static '/img/profile_files/' %}{{ profile_pic }}" alt="User Image">
+                                    {% else %}
+                                        <img class="user_avatar" src="{% static '/img/dummy/u1.png' %}" alt="User Image">
+                                    {% endif %}
+                                {% else %}
+                                    <img class="user_avatar" src="{% static '/img/dummy/u1.png' %}" alt="User Image">
+                                {% endif %}
+                            </div>
+                            <div class="float-left info">
+                                <h6 class="font-weight-light mt-2 mb-1">
+                                    {% if request.user.is_superuser %}
+                                        Admin
+                                    {% else %}
+                                        {{request.user.first_name}} {{request.user.last_name}}
+                                    {% endif %}
+                                </h6>
+                                <a href="#"><i class="icon-circle text-primary blink"></i> Online</a>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="" id="userSettingsCollapse">
+                            <div class="list-group mt-3 shadow">
+                                <!-- <a href="#" class="list-group-item list-group-item-action ">
+                                    <i class="mr-2 icon-umbrella text-blue"></i>Profile
+                                </a> -->
+                                <a href="{% url 'change-password' %}" class="list-group-item list-group-item-action"><i class="mr-2 icon-security text-purple"></i>Change
+                                    Password</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="sidebar-menu">
+                    <li class="header"><strong>MAIN NAVIGATION</strong></li>
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 1 %} <!--Applicant Menus-->
+                    <li class="treeview {% if '/dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'dashboard' %}">
+                            <i class="icon icon icon-user-circle-o blue-text s-18"></i>
+                            <span>Personal Information </span>
+                        </a>
+                    </li>
+                    {% if personal_info.dateOfBirth %}
+                        <li class="treeview {% if '/contact-info/' == request.path %} active {% endif %}">
+                            <a href="{% url 'contact-info' %}">
+                                <i class="icon icon icon-contact_mail blue-text s-18"></i>
+                                <span>Contact Information</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/id-info/' == request.path or '/id-info-create/' == request.path or 'id-info-edit' in request.path %} active {% endif %}">
+                            <a href="{% url 'id-info-listing' %}">
+                                <i class="icon icon icon-verified_user blue-text s-18"></i>
+                                <span>Identification Information</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/my-task-listing/' == request.path or 'my-task' in request.path %} active {% endif %}">
+                            <a href="{% url 'my-task' %}">
+                                <i class="icon icon icon-mail-envelope-open2 blue-text s-18"></i>
+                                <span>My Task &nbsp; <span class="badge badge-primary r-10">{{ open_task }}</span></span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/my-reimbursement/' == request.path or '/create-reimbursement/' == request.path %} active {% endif %}">
+                            <a href="{% url 'my-reimbursement' %}">
+                                <i class="icon icon icon-mail-envelope-open4 blue-text s-18"></i>
+                                <span>My Reimbursement</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="treeview {% if '/contact-info/' == request.path %} active {% endif %}">
+                            <a href="#" class="link-disabled">
+                                <i class="icon icon icon-contact_mail blue-text s-18"></i>
+                                <span>Contact Information</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/id-info/' == request.path or '/id-info-create/' == request.path or 'id-info-edit' in request.path %} active {% endif %}">
+                            <a href="#" class="link-disabled">
+                                <i class="icon icon icon-verified_user blue-text s-18"></i>
+                                <span>Identification Information</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/my-task-listing/' == request.path or 'my-task' in request.path %} active {% endif %}">
+                            <a href="#" class="link-disabled">
+                                <i class="icon icon icon-mail-envelope-open2 blue-text s-18"></i>
+                                <span>My Task &nbsp; <span class="badge badge-primary r-10">{{ open_task }}</span></span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <li class="treeview {% if '/my-reimbursement/' or '/create-reimbursement/' == request.path or 'my-task' in request.path %} active {% endif %}">
+                            <a href="#" class="link-disabled">
+                                <i class="icon icon icon-mail-envelope-open4 blue-text s-18"></i>
+                                <span>My Reimbursement</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    <!-- <li class="treeview">
+                        <a href="{% url 'work-info-listing' %}">
+                            <i class="icon icon icon-work blue-text s-18"></i>
+                            <span>Work Information</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview">
+                        <a href="{% url 'education-info-listing' %}">
+                            <i class="icon icon icon-book blue-text s-18"></i>
+                            <span>Education Information</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview">
+                        <a href="{% url 'document-info-listing' %}">
+                            <i class="icon icon icon-document-text3 blue-text s-18"></i>
+                            <span>My Documents</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li> -->
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.is_superuser %} <!--SuperUser Menus-->
+                    <li class="treeview {% if '/company_listing/' == request.path or '/company-info-create/' == request.path or 'company-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'company-listing' %}">
+                            <i class="icon icon icon-receipt blue-text s-18"></i>
+                            <span>Setup Company</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/sysrpo_listing/' == request.path or '/sysrpo-info-create/' == request.path or 'sysrpo-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'sysrpo-listing' %}">
+                            <i class="icon icon icon-phonelink_setup blue-text s-18"></i>
+                            <span>Setup RPO</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/vendor-user-listing/' == request.path or 'vendor-user-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-user-listing' %}">
+                            <i class="icon icon icon-rate_review blue-text s-18"></i>
+                            <span>Manage Vendors</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/applicant_listing/' == request.path or '/applicant-info-create/' == request.path or 'applicant-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'applicant-listing' %}">
+                            <i class="icon icon icon-recent_actors blue-text s-18"></i>
+                            <span>New Joiners</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% if request.user.user_type == 2 %} <!--Company admin Menu -->
+                    <li class="treeview {% if '/company-user-dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'company-user-dashboard' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>My Dashboard</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/company-account/' == request.path %} active {% endif %}">
+                        <a href="{% url 'company-account' %}">
+                            <i class="icon icon icon-note2 blue-text s-18"></i>
+                            <span>My Account</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/vendor-user-listing/' == request.path or '/vendor-user-create/' == request.path or 'company-vendor-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-user-listing' %}">
+                            <i class="icon icon icon-rate_review blue-text s-18"></i>
+                            <span>My Vendors</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/company-user-listing/' == request.path or '/company-user-create/' == request.path or 'company-user-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'company-user-listing' %}">
+                            <i class="icon icon icon-receipt blue-text s-18"></i>
+                            <span>Company Users</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/template_listing/' == request.path or '/template-info-create/' == request.path or 'template-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'template-listing' %}">
+                            <i class="icon icon icon-note2 blue-text s-18"></i>
+                            <span>My Templates</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/onboarding_listing/' == request.path or '/onboarding-info-create/' == request.path or 'onboarding-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'onboarding-listing' %}">
+                            <i class="icon icon icon-step-forward blue-text s-18"></i>
+                            <span>My Onboarding Steps</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/request_listing/' == request.path or '/create_request_applicant/' == request.path or 'create-request' in request.path or 'update-request' in request.path %} active {% endif %}">
+                        <a href="{% url 'request-listing' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>Create Request</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 7 %} <!--CMO User Menu -->
+                    <li class="treeview {% if '/cmo-dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'cmo-dashboard' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>My Dashboard</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 8 %} <!--Hiring Manager Menu -->
+                    <li class="treeview {% if '/hiring-manager-dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'hiring-manager-dashboard' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>My Dashboard</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 5 %} <!--RPO Menu -->
+                    <li class="treeview {% if '/rpo-account/' == request.path %} active {% endif %}">
+                        <a href="{% url 'rpo-account' %}">
+                            <i class="icon icon icon-note2 blue-text s-18"></i>
+                            <span>My Account</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <!-- if the rpo has company selected, then show these menus -->
+                    {% if 'company_id' in request.session %}
+                    <li class="treeview {% if '/company-user-dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'company-user-dashboard' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>Company Dashboard</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/vendor-user-listing/' == request.path or '/vendor-user-create/' == request.path or 'company-vendor-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-user-listing' %}">
+                            <i class="icon icon icon-rate_review blue-text s-18"></i>
+                            <span>My Vendors</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/company-user-listing/' == request.path or '/company-user-create/' == request.path or 'company-user-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'company-user-listing' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>Company Users</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/template_listing/' == request.path or '/template-info-create/' == request.path or 'template-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'template-listing' %}">
+                            <i class="icon icon icon-note2 blue-text s-18"></i>
+                            <span>My Templates</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/onboarding_listing/' == request.path or '/onboarding-info-create/' == request.path or 'onboarding-info-edit' in request.path %} active {% endif %}">
+                        <a href="{% url 'onboarding-listing' %}">
+                            <i class="icon icon icon-step-forward blue-text s-18"></i>
+                            <span>My Onboarding Steps</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/request_listing/' == request.path or '/create_request_applicant/' == request.path or 'create-request' in request.path or 'update-request' in request.path %} active {% endif %}">
+                        <a href="{% url 'request-listing' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>Create Request</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 6 %} <!--Company User Menu -->
+                    <li class="treeview {% if '/company-user-dashboard/' == request.path %} active {% endif %}">
+                        <a href="{% url 'company-user-dashboard' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>My Dashboard</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/request_listing/' == request.path or '/create_request_applicant/' == request.path %} active {% endif %}">
+                        <a href="{% url 'request-listing' %}">
+                            <i class="icon icon icon-assignment blue-text s-18"></i>
+                            <span>Create Request</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 9 %} <!--RPO User Menu -->
+                        <li class="treeview {% if '/company-user-dashboard/' == request.path %} active {% endif %}">
+                            <a href="{% url 'company-user-dashboard' %}">
+                                <i class="icon icon icon-assignment blue-text s-18"></i>
+                                <span>My Dashboard</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        <!-- if the rpo has company selected, then show these menus -->                        
+                        {% if 'company_id' in request.session %}                        
+                        <li class="treeview {% if '/request_listing/' == request.path or '/create_request_applicant/' == request.path %} active {% endif %}">
+                            <a href="{% url 'request-listing' %}">
+                                <i class="icon icon icon-assignment blue-text s-18"></i>
+                                <span>Create Request</span>
+                                <span class="badge r-3 badge-primary pull-right"></span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 3 %} <!--Vendor Admin Menu -->
+                    <li class="treeview {% if '/vendor-account-detail/' == request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-admin-account-detail' %}">
+                            <i class="icon icon icon-user-circle-o blue-text s-18"></i>
+                            <span>My Account</span>
+                        </a>
+                    </li>
+                    <li class="treeview {% if '/vendor-admin-my-order/' == request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-admin-my-order' %}">
+                            <i class="icon icon icon-contact_mail blue-text s-18"></i>
+                            <span>My Orders</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if request.user.is_password_changed == True %}
+                    {% if request.user.user_type == 4 %} <!-- Vendor User Menu-->
+                    <li class="treeview {% if '/vendor-user-my-cases/' == request.path %} active {% endif %}">
+                        <a href="{% url 'vendor-user-my-cases' %}">
+                            <i class="icon icon icon-verified_user blue-text s-18"></i>
+                            <span>My Cases</span>
+                            <span class="badge r-3 badge-primary pull-right"></span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endif %}
+                </ul>
+            </section>
+        </aside>
+        <!--Sidebar End-->
+        <div class="has-sidebar-left">
+            <div class="pos-f-t">
+                <div class="collapse" id="navbarToggleExternalContent">
+                    <div class="bg-dark pt-2 pb-2 pl-4 pr-2">
+                        <div class="search-bar">
+                            <input class="transparent s-24 text-white b-0 font-weight-lighter w-128 height-50" type="text"
+                                placeholder="start typing...">
+                        </div>
+                        <a href="#" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-expanded="false"
+                            aria-label="Toggle navigation" class="paper-nav-toggle paper-nav-white active "><i></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="sticky">
+                <div class="navbar navbar-expand navbar-dark d-flex justify-content-between bd-navbar blue accent-3">
+                    <div class="relative">
+                        <a href="#" data-toggle="push-menu" class="paper-nav-toggle pp-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                    <!--Top Menu Start -->
+                    <div class="navbar-custom-menu">
+                        <ul class="nav navbar-nav">
+                            <li>
+                                <p class="text-white p-10">Welcome {{ request.user.first_name }}, you last logged in on {{request.user.last_login|date:'d/m/y' }} at {{ request.user.last_login|date:'h:i' }} 
+                                        hrs.</p>
+                            </li>
+                            <!-- User Account-->
+                            <li class="dropdown custom-dropdown user user-menu ">
+                                <a href="{% url 'logout' %}" class="nav-link p-10">
+                                    <img src="{% static '/img/dummy/sign-out_2.png' %}" class="user-image" alt="User Image">
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- <h3 class="company-name text-right">
+                            {% if company_name %}
+                                {{ company_name }}
+                            {% endif %}
+                        </h3> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page has-sidebar-left height-full">
+            <header class="blue accent-3 relative nav-sticky">
+                <div class="container-fluid text-white">
+                    <div class="row p-t-b-10 ">
+                        <div class="col">
+                            <h4>
+                                <i class="icon-box"></i>
+                                {% block pagetitle %}
+                                    <span class="company-name float-right">{% if company_name %} {{ company_name }} {% endif %}</span>
+                                {% endblock %}
+                            </h4>
+                        </div>
+                    </div>
+                    {% block toplinks %}                        
+                    {% endblock %}
+                </div>
+            </header>
+            <div class="container-fluid relative animatedParent animateOnce">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+
+        <!-- Add the sidebar's background. This div must be placed
+         immediately after the control sidebar -->
+        <div class="control-sidebar-bg shadow white fixed"></div>
+    </div>
+    <!--/#app -->
+    <script src="{% static '/js/app.js' %}"></script>
+
+    <!--
+--- Footer Part - Use Jquery anywhere at page.
+--- http://writing.colin-gourlay.com/safely-using-ready-before-including-jquery/
+-->
+    <script>(function ($, d) { $.each(readyQ, function (i, f) { $(f) }); $.each(bindReadyQ, function (i, f) { $(d).bind("ready", f) }) })(jQuery, document)</script>
+    {% block footer %}
+        <script src="{% static '/js/jquery.validate.min.js' %}"></script>
+        <script src="{% static '/js/jquery-confirm.min.js' %}"></script>
+    {% endblock %}
+</body>
+</html>

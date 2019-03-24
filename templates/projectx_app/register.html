@@ -1,0 +1,301 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="eng">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{% static '/img/Original_on_Transparent.png' %}" type="image/x-icon">
+    <title>360degree</title>
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static '/css/app.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.0/jquery-confirm.min.css">
+    <style>
+        .plane-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+        }
+
+        .error, .errorlist {
+            color: red;
+        }
+        
+        .footer {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 1rem;
+            text-align: center;
+            font-family: 'Roboto', sans-serif;
+            color: #212529;
+            font-size: 1rem;
+        }
+        .p-t-b-100 {
+            padding-top: 10px 0!important;
+        }
+
+        #send-otp {
+            cursor: pointer;
+        }
+        
+        .height-full{
+            background: #fff;
+        }
+
+        .logo-img{
+            height: 450px;
+            width: 450px;
+            margin: auto;
+        }
+
+        #password-strength-status {
+            padding: 1px 10px;
+            color: #FFFFFF;
+            border-radius: 4px;
+            margin-top: 5px;
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+
+        .weak-password {
+            background-color: #FF6600;
+            border: #AA4502 1px solid;
+        }
+
+        .medium-password {
+            background-color: #E4DB11;
+            border: #BBB418 1px solid;
+        }
+
+        .strong-password {
+            background-color: #12CC1A;
+            border: #0FA015 1px solid;
+        }
+    </style>    
+</head>
+
+<body class="light">    
+    <div id="app">
+        <main>
+            <div id="primary" class="p-t-b-80 height-full responsive-phone">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <!-- <img src="{% static '/img/icon/icon-plane.png' %}" alt=""> -->
+                            <img src="{% static '/img/Original.png' %}" class="logo-img">
+                        </div>
+                        <div class="col-lg-6 p-t-10">
+                            <div>
+                                <h1>Welcome</h1>
+                                <p class="s-18 p-t-b-20 font-weight-lighter">Sign Up</p>
+                            </div>
+                            <form action="{% url 'register' %}" method="POST" id="register-form" novalidate="novalidate">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-user-secret"></i>
+                                            {{ form.first_name }}
+                                            {% if form.errors.first_name %}
+                                                <p class="text-green">{{form.errors.first_name.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-user-secret"></i>
+                                            {{ form.last_name }}
+                                            {% if form.errors.last_name %}
+                                                <p class="text-green">{{form.errors.last_name.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group has-icon"><i class="icon-envelope-o"></i>
+                                            {{ form.email }}
+                                            {% if form.errors.email %}
+                                                <p class="text-green">{{form.errors.email.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-enhanced_encryption"></i>
+                                            {{ form.password1 }}
+                                            {% if form.errors.password1 %}
+                                            <p class="text-green">{{form.errors.password1.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group has-icon"><i class="icon-enhanced_encryption"></i>
+                                            {{ form.password2 }}
+                                            {% if form.errors.password2 %}
+                                            <p class="text-green">{{form.errors.password2.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="password-strength-status"></div>
+                                    </div>
+                                </div>
+                                    <!-- <div class="col-lg-12">
+                                        <div class="input-group has-icon">
+                                            {{ form.mobile_number }}
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="send-otp">Send OTP</span>
+                                            </div>
+                                            {% if form.errors.mobile_number %}
+                                                <p class="text-green">{{form.errors.mobile_number.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                        <br>
+                                    </div> -->
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group has-icon"><i class="icon-mobile"></i>
+                                            {{ form.mobile_number }}
+                                            {% if form.errors.mobile_number %}
+                                                <p class="text-green">{{form.errors.mobile_number.as_text}}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                    <!-- <div class="col-lg-6">
+                                        <div class="form-group">
+                                            {{ form.otp }}
+                                        </div>
+                                    </div> -->
+                                    <div class="col-lg-12">
+
+                                        {% if form.errors %}
+                                            <!-- Error messaging -->
+                                            <div id="errors">
+                                                <div class="inner">
+                                                    {{ form.non_field_errors }}
+                                                    <ul>
+                                                        {% for field in form %}
+                                                            {% if field.errors %}<li class="text-green">{{ field.label }}: {{ field.errors|striptags }}</li>{% endif %}
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <!-- /Error messaging -->
+                                        {% endif %}
+
+                                        <input type="submit" class="btn btn-success btn-lg btn-block" value="Register">
+                                        <a href="{% url 'login' %}" class="forget-pass text-primary">I already have account</a>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- #primary -->
+        </main>
+    </div>
+    <div class="footer"><strong>Trademark & Copyright 2019 BlackStar LLC.</strong>  |  All rights reserved.</div>
+
+    <script src="{% static '/js/jquery-3.1.0.js' %}"></script>
+    <script src="{% static '/js/jquery.validate.min.js' %}"></script>
+    <script src="{% static '/js/jquery-confirm.min.js' %}"></script>
+    <script>
+        jQuery.validator.addMethod('validphonenumber', function(value, element) {
+            if((element.value.length != 10) || (element.value == isNaN)){
+                return false;
+            } else {
+                return true;
+            }
+        }, 'Invalid phone number');
+
+        $('#register-form').validate({
+            rules: {
+                first_name: {
+                    required: true
+                },
+                last_name: {
+                    required: true
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                password1: {
+                    required: true
+                },
+                password2: {
+                    required: true
+                },
+                mobile_number: {
+                    required: true,
+                    number: true,
+                    validphonenumber: true
+                }
+            }
+        });
+
+        // check whether the email is already used
+        $("input[name='email']").on('change', function () {
+            var email = $(this).val();
+            $.ajax({
+                url: '/ajax/validate-email/' + email,
+                dataType: 'json',
+                success: function (data) {
+                    if (data['is_taken'] != false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: data['error_message'],
+                        });
+                        $("input[name='email']").val('');
+                    }
+                }
+            });
+        });
+
+        // $('#send-otp').on('click', function(){
+        //     var mobile_number = "91" + $('#id_mobile_number').val();
+
+        //     $.ajax({
+        //         url: '/ajax/send-otp/'+mobile_number,
+        //         dataType: 'json',
+        //         success: function(data){
+        //             console.log(data['status']);
+        //         }
+        //     });
+        // });
+
+
+        function checkPasswordStrength() {
+            var number = /([0-9])/;
+            var alphabets = /([a-zA-Z])/;
+            var special_characters = /([~,!,@,#,$,%,^,&,*,-,_,+,=,?,>,<])/;
+            if($('#id_password1').val().length<8) {
+                $('#password-strength-status').removeClass();
+                $('#password-strength-status').addClass('weak-password');
+                $('#password-strength-status').html("Weak (should be atleast 8 characters.)");
+            } else {
+                if($('#id_password1').val().match(number) && $('#id_password1').val().match(alphabets) && $('#id_password1').val().match(special_characters)) {
+                    $('#password-strength-status').removeClass();
+                    $('#password-strength-status').addClass('strong-password');
+                    $('#password-strength-status').html("Strong");
+                } else {
+                    $('#password-strength-status').removeClass();
+                    $('#password-strength-status').addClass('medium-password');
+                    $('#password-strength-status').html("Medium (should include alphabets, numbers and special characters.)");
+                }
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

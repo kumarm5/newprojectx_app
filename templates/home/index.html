@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="Document Verification">
+        <meta name="author" content="">
+        <title>360degree.ai</title>
+        <link rel="stylesheet" href="{% static '/css/bootstrap.min.css' %}">
+        <link rel="icon" href="{% static '/img/Original_on_Transparent.png' %}" type="image/x-icon">
+        <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+        {% block style %}
+        <style>
+            body{
+                font-family: 'Roboto', sans-serif;
+            }
+            .error{
+                color: red;
+            }
+            .card-body{
+                min-height: 160px;
+            }            
+            .footer {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                padding: 1rem;
+                text-align: center;
+            }
+            .container-fluid {
+                padding-right: 0px !important;
+                padding-left: 0px !important;
+            }
+            .logo-img{
+                width: 100px;
+                height: 100px;
+                margin-top: 10px;
+            }
+            .book-demo{
+                margin-right: 22px;
+                margin-top: 70px;
+                border-radius: 0.5rem;
+                background-color: #002060;
+                color: #ffffff;
+            }
+
+            .book-demo:hover{
+                color: #ffffff;
+            }
+
+            .navbar{
+                z-index:9;
+            }
+
+            #fullCarousel{
+                position:absolute;
+                width:100%;
+                top:0;
+            }
+
+        </style>
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container" id="home">
+            <div class="row navbar">
+                <div class="col-md-6">
+                    <img src="{% static '/img/Original_on_Transparent.png' %}" class="logo-img" width="100" height="100">
+                </div>
+                <div class="col-md-6">
+                    <button type="button" class="btn btn-sm float-right book-demo" href="#" data-toggle="modal" data-target="#exampleModal">Request
+                        a Demo</button>
+                </div>
+            </div>
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <a class="navbar-brand" href="#"></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="container">
+                    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item {% if request.path == '/' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'home' %}">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item {% if request.path == '/platform/' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'platform' %}">Platform</a>
+                            </li>
+                            <li class="nav-item {% if request.path == '/products/' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'products' %}">Products</a>
+                            </li>
+                            <li class="nav-item {% if request.path == '/contact/' %} active {% endif %}">
+                                <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'login' %}">Login / Sign Up</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+
+        {% block content %}
+        {% endblock %}        
+
+        <div class="footer"><strong>Trademark & Copyright 2019 BlackStar LLC.</strong>  |  All rights reserved.</div>
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Book a demo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form name="book_form" id="book_form" method="POST" action="{% url 'home' %}">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Please fill the following details and we will contact you within 24 hours</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="first name" name="first_name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="last name" name="last_name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="company name" name="company_name">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="designation" name="designation">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text" id="btnGroupAddon">+91</div>
+                                        </div>
+                                        <input type="text" class="form-control" placeholder="contact phone" aria-label="Input group example"
+                                            aria-describedby="btnGroupAddon" name="contact_phone">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="company email" name="company_email">
+                                    </div>
+                                </div>
+                                <div class="col-md-12 text-center">
+                                    <button type="submit" class="btn btn-success btn-sm">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+
+        <script src="{% static '/js/jquery-3.1.0.js' %}"></script>
+        <script src="{% static '/js/bootstrap.js' %}"></script>
+        <script src="{% static '/js/jquery.validate.min.js' %}"></script>
+        <script src="{% static '/js/jquery.backstretch.min.js' %}"></script>
+        {% block script %}
+            <script>
+                $.backstretch("/static/img/banner.png");
+                // validate
+                $('#book_form').validate({
+                    rules: {
+                        first_name: {
+                            required: true
+                        },
+                        last_name: {
+                            required: true
+                        },
+                        company_name: {
+                            required: true
+                        },
+                        designation: {
+                            required: true
+                        },
+                        contact_phone: {
+                            required: true,
+                            number: true
+                        },
+                        company_email: {
+                            required: true,
+                            email: true
+                        }
+                    }
+                });
+            </script>
+        {% endblock %}
+    </body>
+</html>

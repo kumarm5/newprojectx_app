@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    New Joiners {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'applicant-listing' %}"><i class="icon icon-list"></i>Manage New Joiners</a>
+        </li>
+        <li>
+            <a class="nav-link" href="{% url 'create-applicant-info' %}"><i class="icon icon-plus-circle"></i> Add New Joiners</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr class="no-b">
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Last Visited</th>
+                                    <th>IP Address</th>
+                                    <th>Location</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                {% for applicant in object_list %}
+                                <tr>
+                                    <td>{{applicant.user.first_name}}</td>
+                                    <td>{{applicant.user.last_name}}</td>
+                                    <td>{{applicant.user.mobile_number}}</td>
+                                    <td>{{applicant.user.email}}</td>
+                                    <td>
+                                        {% if applicant.user.is_active == True %}
+                                            Active
+                                        {% else %}
+                                            InActive
+                                        {% endif %}
+                                    </td>
+                                    <td>{{applicant.user.last_login | date:"d-m-Y h:i a"}}</td>
+                                    <td>{{applicant.ip_address}}</td>
+                                    <td>{{applicant.location}}</td>
+                                    <td>
+                                        <a href="{% url 'edit-applicant-info' id=applicant.id %}"><i class="icon-edit"></i></a>
+                                        &nbsp;
+                                        <a href="#"><i class="icon-trash text-danger-o text-danger applicant-delete" data-id="{{ applicant.user_id }}"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    $('.applicant-delete').on('click', function () {
+        dom_document = $(this);
+        $.confirm({
+            title: 'Applicant Delete',
+            content: '<strong>Are you sure?</strong>',
+            icon: 'fa fa-question-circle',
+            animation: 'scale',
+            closeAnimation: 'scale',
+            opacity: 0.5,
+            buttons: {
+                'confirm': {
+                    text: 'Yes',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        applicant_id = $('.applicant-delete').data("id");
+                        $.ajax({
+                            url: '/ajax/delete-applicant-info/' + applicant_id,
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.status) {
+                                    $.alert('<strong>Information Deleted Successfully</strong>');
+                                    dom_document.closest('tr').remove();
+                                } else {
+                                    $.alert('<strong>Information Deletion Failed</strong>');
+                                }
+                            }
+                        });
+                    }
+                },
+                cancel: {
+                    text: 'No',
+                    action: function () {
+                        backgroundDismiss: true
+                    }
+                },
+            }
+        });
+    });
+</script>
+{% endblock %}

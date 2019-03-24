@@ -1,0 +1,648 @@
+{% extends 'base.html' %}
+{% load filter %}
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <style>
+        .hide{display:none !important;}
+
+        .sw-theme-default>ul.step-anchor>li {
+            position: relative;
+            margin-right: 8%;
+        }
+
+        .sw-main{
+            width: 100%;
+        }
+
+        .hr_file, .bgv_file{
+            width: 90%;
+            display: inline-table;
+        }
+    </style>
+
+    <div class="row">
+        <div class="col-md-12">
+            <br>
+            {% if messages %}
+                <div class="alert alert-info alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                    </button>
+                    {% for message in messages %}
+                    <strong>
+                        {{message}}
+                    </strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <strong>Applicant Name: {{ applicant.user.first_name }} {{ applicant.user.last_name }}</strong>
+            <br>
+            <strong>Applicant Email: {{ applicant.user.email }}</strong>
+            <br><br>
+            <div class="card mb-3 shadow no-b r-0">
+                <div class="card-body">
+                    <input type="hidden" name="applicant_id" value="{{ applicant_id }}">
+                    <div class="col-md-4 mx-auto">
+                        <div class="text-center">
+                            <label>Select Onboarding</label>
+                        </div>
+                        <select name="onboarding" class="form-control r-0 light s-12">
+                            <option value="">Select Onboarding</option>
+                            {% for coonboarding in coonboardings %}
+                                <option value="{{ coonboarding.id }}"
+                                {% if onboarding_id == coonboarding.id %}
+                                    selected
+                                {% endif %}
+                                >{{ coonboarding.co_onboarding_type_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <br>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Job/Role Id</label>
+                                <input type="text" class="form-control r-0 light s-12" name="header_job_id" placeholder="Job/Role Id" value="{{ my_request.job_id }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Position</label>
+                                <input type="text" class="form-control r-0 light s-12" name="header_position" placeholder="Position" value="{{ my_request.position_id }}">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Hiring Manager</label>
+                                <select class="form-control r-0 light s-12" name="header_hiring_manager">
+                                    {% for hiring_manager_user in hiring_manager_users %}
+                                        <option value="{{ hiring_manager_user.id }}">{{ hiring_manager_user }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <br>
+                    <div class="stepper sw-main hide">
+                        <ul class="nav step-anchor" id="sortable">
+                            <li class="wizard-list" data-id="1"><a href="#step-11">Background Verification<br></a></li>
+                            <li class="wizard-list" data-id="2"><a href="#step-22">Reference Check<br></a></li>
+                            <li class="wizard-list" data-id="3"><a href="#step-33">Employment Forms<br></a></li>
+                            <li class="wizard-list" data-id="4"><a href="#step-44">Medical Check<br></a></li>
+                        </ul>
+                        <div class="card no-b shadow">
+                            <div id="step-11" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="bgv_form" id="bgv_form">
+                                    {% csrf_token %}
+                                    <div class="row text-left">
+
+                                        <input type="hidden" name="job_id" class="job_id" value="">
+                                        <input type="hidden" name="position" class="position" value="">
+                                        <input type="hidden" name="hiring_manager_user" class="hiring_manager_user" value="">
+
+                                        <input type="hidden" name="bgv_task_id" value="{{ co_onboarding_bgv_task.id }}">
+                                        <input type="hidden" name="bgv_company" value="{{ company.id }}">
+
+                                        <div class="col-md-6">
+                                            {% for document_type in document_types %}
+                                                <strong>{{document_type.document_type_name}}</strong>
+                                                <br>
+                                                {% for document_type_name in document_type_names %}
+                                                    {% if document_type_name.documenttype.document_type_name == document_type.document_type_name %}
+                                                        <input type="checkbox" name="bgv_document" class="bgv_document" value="{{document_type_name.id}}" {{ document_type_name.id|bgv_ischecked:coonboardingtaskbgv }} > {{document_type_name.document_name}}
+                                                        <br>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <br>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">                                                
+                                            <div class="form-group hide">
+                                                <label>Task name</label>
+                                                {% if co_onboarding_bgv_task.task_name %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="{{ co_onboarding_bgv_task.task_name }}">
+                                                {% else %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="Background Verification">
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Days to complete</label>
+                                                <input type="number" class="form-control r-0 light s-12" name="bgv_due_date" value="{{ co_onboarding_bgv_task.due_date }}">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Comment</label>
+                                                <textarea class="form-control r-0 light s-12" name="bgv_comment">{{ co_onboarding_bgv_task.comment }}</textarea>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Vendor</label>
+                                                <select name="bgv_vendor" class="form-control r-0 light s-12">
+                                                    {% for vendor in vendors %}
+                                                    <option value="{{ vendor.id }}" 
+                                                        {% if co_onboarding_bgv_task.vendor_id == vendor.id %} 
+                                                            selected
+                                                        {% endif %}>{{ vendor.vendor }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>                                    
+                                    {% if is_step_one_sent == False %}
+                                        <input type="submit" name="save_for_step_1" class="btn btn-success btn-sm" value="Save">
+                                    {% else %}
+                                        <input type="submit" name="save_for_step_1" class="btn btn-success btn-sm" value="Sent" disabled>
+                                    {% endif %}
+                                </form>
+                            </div>
+                            <div id="step-22" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="ref_form" id="ref_form">
+                                    {% csrf_token %}
+                                    <div class="row text-left">
+
+                                        <input type="hidden" name="job_id" class="job_id" value="">
+                                        <input type="hidden" name="position" class="position" value="">
+                                        <input type="hidden" name="hiring_manager_user" class="hiring_manager_user" value="">
+
+                                        <input type="hidden" name="ref_task_id" value="{{ co_onboarding_ref_task.id }}">
+                                        <input type="hidden" name="ref_company" value="{{ company.id }}">
+
+                                        <div class="col-sm-6">
+                                            {% for sysrefcheck in sysrefchecks %}
+                                            <div class="form-group">
+                                                <label><strong><input type="checkbox" name="ref_check" class="ref_check" value="{{sysrefcheck.id}}" {{ sysrefcheck.id|ref_ischecked:coonboardingtaskref }}>{{sysrefcheck.reference_name }}</strong></label>
+                                                <input type="number" class="form-control r-0 light s-12" name="ref_no_of_reference"
+                                                    value="{{ sysrefcheck.id|ref_no_reference:coonboardingtaskref }}">                                                    
+                                                <small>Number of References required</small>                                                
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="form-group hide">
+                                                <label>Task name</label>
+                                                {% if co_onboarding_ref_task.task_name %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="{{ co_onboarding_ref_task.task_name }}">
+                                                {% else %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="Reference Check">
+                                                {% endif %}
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label>Days to complete</label>
+                                                <input type="number" class="form-control r-0 light s-12" value="{{ co_onboarding_ref_task.due_date }}" name="ref_due_date">
+                                                <div id="msg_ref_due_date"></div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label>Comment</label>
+                                                <textarea class="form-control r-0 light s-12" name="ref_comment">{{ co_onboarding_ref_task.comment }}</textarea>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label class="form-label">Vendor</label>
+                                                <select name="ref_vendor" class="form-control r-0 light s-12">
+                                                    {% for vendor in vendors %}
+                                                    <option value="{{ vendor.id }}"
+                                                    {% if co_onboarding_ref_task.vendor_id == vendor.id %}
+                                                        selected="True"
+                                                    {% endif %}
+                                                    >{{ vendor.vendor }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="text-left">
+                                        <span class="text-danger ref_no_of_reference_error"></span>
+                                    </div>
+                                    <br>
+                                    {% if is_step_two_sent == False %}
+                                        <input type="submit" name="save_for_step_2" class="btn btn-success btn-sm" value="Save">                                        
+                                    {% else %}
+                                        <input type="submit" name="save_for_step_2" class="btn btn-success btn-sm" value="Sent" disabled>
+                                    {% endif %}
+                                </form>
+                            </div>
+
+                            <div id="step-33" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="hr_form" id="hr_form">
+                                    {% csrf_token %}
+
+                                    <input type="hidden" name="hr_task_id" value="{{ co_onboarding_hr_task.id }}">
+                                    <input type="hidden" name="hr_company" value="{{ company.id }}">
+
+                                    <table id="example2" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Select</th>
+                                                <th>Template ID</th>
+                                                <th>Name</th>
+                                                <th>Template Type</th>
+                                                <th>Template</th>
+                                                <th>Updated By</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if templates %}
+                                            {% for template in templates %}
+                                            <tr>
+                                                <td><input type="checkbox" name="hr_template" class="hr_template" value="{{ template.id }}" {{ template.id|hr_ischecked:coonboardingtaskhr }}></td>
+                                                <td>{{ template.id}}</td>
+                                                <td>{{ template.template_name}}</td>
+                                                <td>{{ template.template_type.template_type_name}}</td>
+                                                <td>
+                                                    {% if template.template_doc %}
+                                                    <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ template.owner}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                    <div class="row text-left">
+
+                                        <input type="hidden" name="job_id" class="job_id" value="">
+                                        <input type="hidden" name="position" class="position" value="">
+                                        <input type="hidden" name="hiring_manager_user" class="hiring_manager_user" value="">
+
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Days to Complete</label>
+                                                <input type="number" class="form-control r-0 light s-12" value="{{ co_onboarding_hr_task.due_date }}" name="hr_due_date">
+                                                <div id="msg_hr_due_date"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label class="form-label">Vendor</label>
+                                                <select name="hr_vendor" class="form-control r-0 light s-12">
+                                                    {% for vendor in vendors %}
+                                                    <option value="{{ vendor.id }}"
+                                                    {% if co_onboarding_hr_task.vendor_id == vendor.id %}
+                                                        selected="True"
+                                                    {% endif %}
+                                                    >{{ vendor.vendor }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group hide">
+                                                <label>Task name</label>
+                                                {% if co_onboarding_hr_task.task_name %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="{{ co_onboarding_hr_task.task_name }}">
+                                                {% else %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="Employment Forms">
+                                                {% endif %}
+                                                <div id="msg_task_name_step_three"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Comment</label>
+                                                <textarea class="form-control r-0 light s-12" name="hr_comment">{{ co_onboarding_hr_task.comment }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if is_step_three_sent == False %}
+                                        <input type="submit" name="save_for_step_3" class="btn btn-success btn-sm" value="Save">
+                                    {% else %}
+                                        <input type="submit" name="save_for_step_3" class="btn btn-success btn-sm" value="Sent" disabled>
+                                    {% endif %}
+                                </form>
+                            </div>
+
+                            <div id="step-44" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="medical_form" id="medical_form">
+                                    {% csrf_token %}
+
+                                    <input type="hidden" name="medical_task_id" value="{{ co_onboarding_medical_task.id }}">
+                                    <input type="hidden" name="medical_company" value="{{ company.id }}">
+                                    <input type="hidden" name="medical_cmo_user" value="{{ co_onboarding_medical_task.medical_cmo_user.id }}">
+
+                                    <table id="example2" class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Select</th>
+                                                <th>Template ID</th>
+                                                <th>Name</th>
+                                                <th>Template Type</th>
+                                                <th>Template</th>
+                                                <th>Updated By</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if templates %}
+                                            {% for template in templates %}
+                                            <tr>
+                                                <td><input type="checkbox" name="medical_template" class="medical_template" value="{{ template.id }}" {{ template.id|medical_ischecked:coonboardingtaskmedical }}></td>
+                                                <td>{{ template.id}}</td>
+                                                <td>{{ template.template_name}}</td>
+                                                <td>{{ template.template_type.template_type_name}}</td>
+                                                <td>
+                                                    {% if template.template_doc %}
+                                                    <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ template.owner}}</td>
+                                            </tr>
+                                            {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                    <div class="row text-left">
+
+                                        <input type="hidden" name="job_id" class="job_id" value="">
+                                        <input type="hidden" name="position" class="position" value="">
+                                        <input type="hidden" name="hiring_manager_user" class="hiring_manager_user" value="">
+
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Days to Complete</label>
+                                                <input type="number" class="form-control r-0 light s-12" name="medical_due_date" value="{{ co_onboarding_medical_task.due_date }}">
+                                                <div id="msg_medical_due_date"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <label class="form-label">Vendor</label>
+                                                <select name="medical_vendor" id="medical_vendor" class="form-control r-0 light s-12"
+                                                {% if co_onboarding_medical_task.send_to_candidate == True %}
+                                                    disabled
+                                                {% endif %}
+                                                >
+                                                    {% for vendor in medical_vendors %}
+                                                    <option value="{{ vendor.id }}"
+                                                    {% if co_onboarding_medical_task.vendor_id == vendor.id %}
+                                                        selected="True"
+                                                    {% endif %}
+                                                    >{{ vendor.vendor }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group">
+                                                <div class="checkbox">
+                                                    <label><input type="checkbox" name="send_to_candidate"
+                                                        {% if co_onboarding_medical_task.send_to_candidate == True %}
+                                                            checked
+                                                        {% endif %}
+                                                        >Send to Candidate</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 col-xs-12">
+                                            <div class="form-group hide">
+                                                <label>Task name</label>
+                                                {% if co_onboarding_medical_task.task_name %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="{{ co_onboarding_medical_task.task_name }}">
+                                                {% else %}
+                                                    <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="Medical Check">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12 col-xs-12">
+                                            <div class="form-group">
+                                                <label>Comment</label>
+                                                <textarea class="form-control r-0 light s-12" name="medical_comment">{{ co_onboarding_medical_task.comment }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% if is_step_four_sent == False %}
+                                        <input type="submit" name="save_for_step_4" class="btn btn-success btn-sm" value="Save">
+                                    {% else %}
+                                        <input type="submit" name="save_for_step_4" class="btn btn-success btn-sm" value="Sent" disabled>
+                                    {% endif %}
+                                </form>
+                            </div>           
+
+                            <span class="float-right p-10 hide">
+                                <a href="#" class="btn btn-success btn-sm send-all">SEND ALL</a>
+                                <br><br><br>
+                            </span>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+
+        $('select[name="onboarding"]').on('change', function(){
+            var onboarding_id = $(this).val();
+            var applicant_id = $('input[name="applicant_id"]').val();
+
+            if(onboarding_id == ""){
+                window.location.href = "/create-request/"+applicant_id+"/";
+            } else {
+                window.location.href = "/create-request/"+applicant_id+"/"+onboarding_id+"/";
+            }
+        });
+
+        // validation
+
+        // step 1
+        $('form[name="bgv_form"]').on('submit', function(e){
+            var hiring_manager_value = $('select[name="header_hiring_manager"]').val();
+
+            if (hiring_manager_value == undefined){
+                e.preventDefault();
+                $.alert('<strong>Please select hiring manager.</strong>');
+            }
+
+            if($('.bgv_document').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one document.</strong>');
+            }
+        });
+
+        $('#bgv_form').validate({
+            rules: {
+                bgv_due_date: {
+                    required: true,
+                    number: true
+                }
+            }
+        });
+
+        // step 2
+        $('form[name="ref_form"]').on('submit', function(e){
+            var hiring_manager_value = $('select[name="header_hiring_manager"]').val();
+
+            if (hiring_manager_value == undefined){
+                e.preventDefault();
+                $.alert('<strong>Please select hiring manager.</strong>');
+            }
+
+            if($('.ref_check').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one reference.</strong>');
+            }
+
+            // $(".ref_check").each(function (index, value) {
+            //     if ($(this).is(':checked') == true) {
+            //         var ref_no_of_reference = $('input[name="ref_no_of_reference"]').val();
+            //         if ((ref_no_of_reference == 0) || (ref_no_of_reference > 5)) {
+            //             $('.ref_no_of_reference_error').text('Please enter valid no. of reference. It should not be more than 5 or equals to 0 reference');
+            //         } else {
+            //             $('.ref_no_of_reference_error').text('');
+            //         }
+            //     }
+            // });
+
+        });
+
+        $('#ref_form').validate({
+            rules: {
+                ref_due_date: {
+                    required: true,
+                    number: true
+                }
+            }
+        });
+
+        // step 3
+        $('form[name="hr_form"]').on('submit', function(e){
+            var hiring_manager_value = $('select[name="header_hiring_manager"]').val();
+
+            if (hiring_manager_value == undefined){
+                e.preventDefault();
+                $.alert('<strong>Please select hiring manager.</strong>');
+            }
+
+            if($('.hr_template').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one template.</strong>');
+            }
+        });
+
+        $('#hr_form').validate({
+            rules: {
+                hr_due_date: {
+                    required: true,
+                    number: true
+                }
+            }
+        });
+
+        // step 4
+
+        $('input[name="send_to_candidate"]').on('change', function(){
+            if ($(this).is(':checked') == true){
+                $("#medical_vendor").attr('disabled', 'disabled');
+            } else {
+                $("#medical_vendor").removeAttr('disabled');
+            }
+        });
+    
+        $('form[name="medical_form"]').on('submit', function(e){
+            var hiring_manager_value = $('select[name="header_hiring_manager"]').val();
+
+            if (hiring_manager_value == undefined){
+                e.preventDefault();
+                $.alert('<strong>Please select hiring manager.</strong>');
+            }
+
+            // if($('.medical_template').is(":checked") == false){
+            //     e.preventDefault();
+            //     $.alert('<strong>Please select atleast one template.</strong>');
+            // }
+        });
+
+        $('#medical_form').validate({
+            rules: {
+                medical_due_date: {
+                    required: true,
+                    number: true
+                }
+            }
+        });
+
+        $(function(){
+            var onboarding_id = $('select[name="onboarding"]').val();
+
+            if(onboarding_id != ""){
+                $('.stepper').removeClass('hide');
+            }
+
+            var header_job_value = $('input[name="header_job_id"]').val();
+            var header_position_value = $('input[name="header_position"]').val();
+            var header_hiring_manager_value = $('select[name="header_hiring_manager"]').val();
+
+            $('.job_id').val(header_job_value);
+            $('.position').val(header_position_value);
+            $('.hiring_manager_user').val(header_hiring_manager_value);
+
+            $('input[name="header_job_id"]').on('change', function(){
+                var header_job_id = $(this).val();
+                $('.job_id').val(header_job_id);
+            });
+
+            $('input[name="header_position"]').on('change', function(){
+                var header_position = $(this).val();
+                $('.position').val(header_position);
+            });
+
+            $('input[name="header_hiring_manager"]').on('change', function(){
+                var header_hiring_manager = $(this).val();
+                $('.hiring_manager_user').val(header_hiring_manager);
+            });
+        });
+
+
+        $('.send-all').on('click', function () {
+            $.confirm({
+                title: 'Confirm!',
+                content: 'Are you sure you want to send the request ? Once sent you cannot edit the onboarding steps, you will have to deactivate and send a new one, we recommend you send individual steps if you are not sure',
+                buttons: {
+                    confirm: function () {
+                        var bgv_form_data = $('#bgv_form').serialize();
+                        var ref_form_data = $('#ref_form').serialize();
+                        var hr_form_data = $('#hr_form').serialize();
+                        var medical_form_data = $('#medical_form').serialize();
+
+                        var data = bgv_form_data + ref_form_data + hr_form_data + medical_form_data;
+
+                        $.ajax({
+                            url: '/ajax/send-all-request/',
+                            data: data,
+                            type: 'POST',
+                            success: function(result){
+                                console.log(result.status);
+                            }
+                        });
+                    },
+                    cancel: function () {
+                        $.alert('Cancelled!');
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

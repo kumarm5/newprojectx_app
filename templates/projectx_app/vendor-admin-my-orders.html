@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    My Orders {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'vendor-admin-my-order' %}"><i class="icon icon-list"></i>All
+                Orders</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr>
+                                    <th>Order Number</th>
+                                    <th>Date</th>
+                                    <th>Applicant Name</th>
+                                    <th>Company</th>
+                                    <th>Step Name</th>
+                                    <th>Documents</th>
+                                    <th>Assign to</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                {% for request in object_list %}
+                                <tr>
+                                    <td class="request-id">{{ request.id }}</td>
+                                    <td>{{ request.created_at|date:'d-m-Y' }}</td>
+                                    <td>{{ request.myrequest.applicant.user.first_name }} {{request.myrequest.applicant.user.last_name }}</td>
+                                    <td>{{ request.company.company_name }}</td>
+                                    <td>{{ request.task_name }}</td>                                    
+                                    <td class="text-center"><i class="icon-file-zip-o documents" data-id="{{ request.myrequest.id }}" data-stepid="{{ request.step_id }}" data-toggle="modal" data-target="#exampleModal"></i></td>
+                                    <td>
+                                        {% if vendors %}
+                                        <select class="form-control s-12 reqested-vendor">
+                                            <option value=""> Select Option </option>
+                                            {% for vendor in vendors %}
+                                                <option value="{{ vendor.id }}" 
+                                                {% if vendor.id == request.vendor_user.id %}
+                                                    selected 
+                                                {% endif %}>{{ vendor.user.first_name }} {{ vendor.user.last_name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% autoescape off %}
+                                        {{ request.myrequest|request_details:request.step_id }}
+                                        {% endautoescape %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Documents</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Request Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    $('.reqested-vendor').on('change', function () {
+        var vendor_id = $(this).val();
+        var request_id = $(this).closest('tr').find('.request-id').text();
+        $.ajax({
+            url: '/ajax/vendor-admin-my-order-vender/' + request_id + '/' + vendor_id + '/',
+            dataType: 'json',
+            success: function (data) {
+                if (data['status'] == 'true') {
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'This task has been assigned to a case worker.',
+                    });
+                }
+            }
+        });
+    });
+
+    $('body').on('click', '.detail-model', function() {
+        $("#exampleModal2 .modal-body").empty();
+        var progress_status = $(this).data('progress_status');
+        var comments = $(this).data('comments');
+        var result = $(this).data('result');
+        var file_name = $(this).data('file_name');
+        var step_id = $(this).data('step_id');
+
+        if ((result == 'undefined') || (result == 'None')) {
+            result = 'No Result';
+        }
+
+        if ((file_name == '') || (file_name == 'None')){
+            file_name = 'No File Found';
+        }
+
+        if ((comments == 'None') || (comments == '')) {
+            comments = 'No Comment';
+        }
+
+        if (progress_status == '') {
+            progress_status = 'No Status';
+        }
+
+        if (step_id == '1') {
+            $("#exampleModal2 .modal-body").append('<strong>Status: </strong>' + progress_status + '<br>');
+            $("#exampleModal2 .modal-body").append('<strong>Result: </strong>' + result + '<br>');
+            $("#exampleModal2 .modal-body").append('<strong>Comment: </strong>' + comments + '<br>');
+            if (file_name == 'No File Found') {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong>' + file_name + '<br>');
+            } else {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong><a href="https://project-x-s3.s3.amazonaws.com/' + file_name + '">' + file_name + '</a><br>');
+            }
+
+        } else if (step_id == '3') {
+            $("#exampleModal2 .modal-body").append('<strong>Comment: </strong>' + comments + '<br>');
+            if (file_name == 'No File Found') {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong>' + file_name + '<br>');
+            } else {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong><a href="https://project-x-s3.s3.amazonaws.com/' + file_name + '">' + file_name + '</a><br>');
+            }
+        } else if (step_id == '4') {
+            $("#exampleModal2 .modal-body").append('<strong>Comment: </strong>' + comments + '<br>');
+            if (file_name == 'No File Found') {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong>' + file_name + '<br>');
+            } else {
+                $("#exampleModal2 .modal-body").append('<strong>File: </strong><a href="https://project-x-s3.s3.amazonaws.com/' + file_name + '">' + file_name + '</a><br>');
+            }
+        }
+
+    });
+
+    $('body').on('click', '.step_two_details', function() {
+        $("#exampleModal2 .modal-body").empty();
+        var comments = $(this).data('comments');
+        var file_name = $(this).data('file_name');
+        var myrequest_id = $(this).data('myrequest_id');
+        var step_id = $(this).data('step_id');
+
+        if ((file_name == '') || (file_name == 'None')){
+            file_name = 'No File Found';
+        }
+
+        if((comments == '') || (comments == 'None')){
+            comments = 'No Comment';
+        }
+
+        $.ajax({
+            url: '/ajax/reference-details/' + myrequest_id + '/' + step_id + '/',
+            dataType: 'json',
+            success: function (data) {
+                if (file_name == 'No File Found') {
+                    $("#exampleModal2 .modal-body").append('<div class="col-md-12">\
+                        <p>File Name: '+ file_name + '</p>\
+                        <p>Comments: '+ comments + '</p></div><hr>'
+                    );
+                } else {
+                    $("#exampleModal2 .modal-body").append('<div class="col-md-12">\
+                        <p>File Name: <a href="https://project-x-s3.s3.amazonaws.com/'+ file_name + '">' + file_name + '</a></p>\
+                        <p>Comments: '+ comments + '</p></div><hr>'
+                    );
+                }
+                
+                if (data.length == 0){
+                    $("#exampleModal2 .modal-body").append('<b>No Data Found for Reference Details</b>');
+                } else {
+                    $.each(data, function (index, value) {
+                        ref_office_email = data[index].ref_office_email;
+                        ref_phone = data[index].ref_phone;
+                        ref_name = data[index].ref_name;
+                        ref_organisation = data[index].ref_organisation;
+                        ref_relation = data[index].ref_relation;
+
+                        if(ref_office_email == ''){
+                            ref_office_email = 'No Value';
+                        }
+                        if(ref_phone == ''){
+                            ref_phone = 'No Value';
+                        }
+                        if(ref_name == ''){
+                            ref_name = 'No Value';
+                        }
+                        if(ref_organisation == ''){
+                            ref_organisation = 'No Value';
+                        }
+                        if(ref_relation == ''){
+                            ref_relation = 'No Value';
+                        }
+                        $("#exampleModal2 .modal-body").append('\
+                            <div class="col-md-6" style="float:left;">\
+                            <p><strong><u>Reference Category: '+ data[index].reference__reference_name + '</u></strong></p>\
+                            <p>Office Email: '+ ref_office_email + '</p>\
+                            <p>Reference Phone: '+ ref_phone + '</p>\
+                            <p>Reference Name: '+ ref_name + '</p>\
+                            <p>Reference Organisation: '+ ref_organisation + '</p>\
+                            <p>Relation: '+ref_relation+'</p>\
+                        </div>\
+                        ');
+                    });
+                }
+            }
+        });
+    });
+
+    // get the document
+    $('body').on('click', '.documents', function() {
+        var myrequest_id = $(this).data('id');
+        var step_id = $(this).data('stepid');
+
+        $.ajax({
+            url: '/ajax/vendor-documents/' + myrequest_id + '/' + step_id + '/',
+            dataType: 'json',
+            success: function (data) {
+                $(".modal-body").empty();
+                if ((step_id == '1') && (data.length > 0)) {
+                    $.each(data, function (index, value) {
+                        if (data[index].document_file != '') {
+                            $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_file + '" download >' + data[index].document_file + '</a> <br>');
+                        }
+                    });
+                } else if((step_id == '3') && (data.length > 0)) {
+                    $.each(data, function (index, value) {
+                        if (data[index].document_name != '') {
+                            $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_name + '" download >' + data[index].document_name + '</a> <br>');
+                        }
+                    });
+                } else if((step_id == '4') && (data.length > 0)) {
+                    $.each(data, function (index, value) {
+                        if (data[index].document_name != '') {
+                            $(".modal-body").append('<a href="https://project-x-s3.s3.amazonaws.com/' + data[index].document_name + '" download >' + data[index].document_name + '</a> <br>');
+                        }
+                    });
+                } else {
+                    $(".modal-body").append('<strong>No document found</strong>');
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

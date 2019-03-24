@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Contact Information {{ block.super }} 
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" action="{% url 'contact-info' %}" name="contact_form" id="contact_form" novalidate="novalidate">
+                    {% csrf_token %}
+                    <input type="hidden" name="user" value="{{ request.user.id }}">
+
+                    <div class="row">
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Country Code</label>
+                            {{form.mobileNumberCode}}
+                            {% if form.errors.mobileNumberCode %}
+                            <p class="color-red">{{form.errors.mobileNumberCode.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Mobile Number</label>
+                            <!-- {{form.mobileNumber}} -->
+                            <input type="text" name="mobileNumber" maxlength="256" class="form-control r-0 light s-12" id="id_mobileNumber" value="{{ request.user.mobile_number}}">
+                            {% if form.errors.mobileNumber %}
+                            <p class="color-red">{{form.errors.mobileNumber.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Work Number</label>
+                            {{form.workNumber}}
+                            {% if form.errors.workNumber %}
+                            <p class="color-red">{{form.errors.workNumber.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Home Number</label>
+                            {{form.homeNumber}}
+                            {% if form.errors.homeNumber %}
+                            <p class="color-red">{{form.errors.homeNumber.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Primary Email</label>
+                            <!-- {{form.primaryEmail}} -->
+                            <input type="email" name="primaryEmail" maxlength="256" class="form-control r-0 light s-12" id="id_primaryEmail" value="{{ request.user.email }}" readonly>
+                            {% if form.errors.primaryEmail %}
+                            <p class="color-red">{{form.errors.primaryEmail.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-3 col-xs-12">
+                            <label class="form-label">Alternate Email</label>
+                            {{form.alternateEmail}}
+                            {% if form.errors.alternateEmail %}
+                            <p class="color-red">{{form.errors.alternateEmail.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-12 col-xs-12">
+                            <label class="form-label"><strong>Preferred Contact Method :</strong></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{form.preferredNumbermobile}}
+                                    <span class="form-check-sign"></span>
+                                    Mobile Phone
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{form.preferredNumberwork}}
+                                    <span class="form-check-sign"></span>
+                                    Work Phone
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{form.preferredNumberhome}}
+                                    <span class="form-check-sign"></span>
+                                    Home Phone
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{form.preferredPrimaryEmail}}
+                                    <span class="form-check-sign"></span>
+                                    Primary Email
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-xs-12">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{form.preferredAlternateEmail}}
+                                    <span class="form-check-sign" style="margin-right: -10px;"></span>
+                                    Alternate Email
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <hr>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <b style="color:#000">Present Address</b>
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Address Line 1</label>
+                            {{address_form.temp_addressLine1}}
+                            {% if address_form.errors.temp_addressLine1 %}
+                            <p class="color-red">{{address_form.errors.temp_addressLine1.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Address Line 2</label>
+                            {{address_form.temp_addressLine2}}
+                            {% if address_form.errors.temp_addressLine2 %}
+                            <p class="color-red">{{address_form.errors.temp_addressLine2.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{address_form.temp_country}}
+                            {% if address_form.errors.temp_country %}
+                            <p class="color-red">{{address_form.errors.temp_country.as_text}}</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">State</label>
+                            {{address_form.temp_state}}
+                            {% if address_form.errors.temp_state %}
+                            <p class="color-red">{{address_form.errors.temp_state.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">City</label>
+                            {{address_form.temp_city}}
+                            {% if address_form.errors.temp_city %}
+                            <p class="color-red">{{address_form.errors.temp_city.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Pincode</label>
+                            {{address_form.temp_postalCode}}
+                            {% if address_form.errors.temp_postalCode %}
+                            <p class="color-red">{{address_form.errors.temp_postalCode.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <hr />
+
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <b style="color:#000">Permanent Address</b>
+                        </div>
+                        <!-- <div class="col-sm-5">
+                            <div class="position-relative form-check">
+                                <label class="form-check-label">
+                                    {{address_form.permanentAddressSame}}
+                                    <span class="form-check-sign"></span>
+                                    <strong>Same as present address</strong>
+                                </label>
+                            </div>
+                        </div> -->
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Address Line 1</label>
+                            {{address_form.perm_addressLine1}}
+                            {% if address_form.errors.perm_addressLine1 %}
+                            <p class="color-red">{{address_form.errors.perm_addressLine1.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Address Line 2</label>
+                            {{address_form.perm_addressLine2}}
+                            {% if address_form.errors.perm_addressLine2 %}
+                            <p class="color-red">{{address_form.errors.perm_addressLine2.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{address_form.perm_country}}
+                            {% if address_form.errors.perm_country %}
+                            <p class="color-red">{{address_form.errors.perm_country.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">State</label>
+                            {{address_form.perm_state}}
+                            {% if address_form.errors.perm_state %}
+                            <p class="color-red">{{address_form.errors.perm_state.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">City</label>
+                            {{address_form.perm_city}}
+                            {% if address_form.errors.perm_city %}
+                            <p class="color-red">{{address_form.errors.perm_city.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <label class="form-label">Pincode</label>
+                            {{address_form.perm_postalCode}}
+                            {% if address_form.errors.perm_postalCode %}
+                            <p class="color-red">{{address_form.errors.perm_postalCode.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        // $('input[name="permanentAddressSame"]').on('change', function(){
+        //     is_checked = $(this).is(':checked');
+
+        //     if(is_checked == true){
+        //         $('#id_perm_addressLine1').val($('#id_temp_addressLine1').val());
+        //     } else {
+
+        //     }
+        // });
+
+        jQuery.validator.addMethod('validphonenumber', function(value, element) {
+            if((element.value.length != 10) || (element.value == isNaN)){
+                return false;
+            } else {
+                return true;
+            }
+        }, 'Invalid phone number');
+
+
+        $('#contact_form').validate({
+            rules: {
+                mobileNumber: {
+                    required: true,
+                    number: true,
+                    validphonenumber: true
+                }
+            }
+        });
+
+    </script>
+{% endblock %}

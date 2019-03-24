@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    {{ form.rpo_company_name.value }}  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 text-center">
+                {% if system_company_rpo %}
+                <label><strong>Select Customer</strong></label>
+                <select class="form-control s-12 rpo-company" name="rpo-company">
+                    <option value=""> Select Option </option>
+                    {% for company in system_company_rpo %}
+                    <option value="{{ company.id }}"
+                    {% if request.session.company_id == company.id %}
+                        selected
+                    {% endif %}
+                    >Customer: {{ company.company_name }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+
+        <br><br>
+
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+                <strong>{{message}}</strong>
+            {% endfor %}
+        </div>
+        {% endif %}        
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="rpo_form" id="rpo_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    {% if form.instance.id %}
+                        <input type="hidden" name="user" value="{{ form.user.value }}">
+                    {% endif %}
+
+                    <input type="hidden" name="rpo_id" value="{{ form.rpo_id.value }}">
+                    <input type="hidden" name="owner" value="{{ request.user.id }}">
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">RPO Company Name:</label>
+                            {{form.rpo_company_name}}
+                            {% if form.errors.rpo_company_name %}
+                            <p class="color-red">{{form.errors.rpo_company_name.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country</label>
+                            {{form.country}}
+                            {% if form.errors.country %}
+                            <p class="color-red">{{form.errors.country.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Phone No</label>
+                            {{form.phone_no}}
+                            {% if form.errors.phone_no %}
+                            <p class="color-red">{{form.errors.phone_no.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Company Admin</label>
+                            {{form.company_admin}}
+                            {% if form.errors.company_admin %}
+                            <p class="color-red">{{form.errors.company_admin.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Country Code</label>
+                            {{form.country_code}}
+                            {% if form.errors.country_code %}
+                            <p class="color-red">{{form.errors.country_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Area Code</label>
+                            {{form.area_code}}
+                            {% if form.errors.area_code %}
+                            <p class="color-red">{{form.errors.area_code.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Number</label>
+                            {{form.number}}
+                            {% if form.errors.number %}
+                            <p class="color-red">{{form.errors.number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Email</label>
+                            {% if not form.instance.id %}
+                                {{form.email}}
+                            {% else %}
+                                <input type="email" value="{{ form.email.value }}" class="form-control r-0 light s-12" disabled="True">
+                                <input type="hidden" name="email" value="{{ form.email.value }}">
+                            {% endif %}
+                            {% if form.errors.email %}
+                            <p class="color-red">{{form.errors.email.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Annual Contract Value</label>
+                            {{form.annual_contract_value}}
+                            {% if form.errors.annual_contract_value %}
+                            <p class="color-red">{{form.errors.annual_contract_value.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Start Date</label>
+                            {{form.contract_start_date}}
+                            {% if form.errors.contract_start_date %}
+                            <p class="color-red">{{form.errors.contract_start_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract End Date</label>
+                            {{form.contract_end_date}}
+                            {% if form.errors.contract_end_date %}
+                            <p class="color-red">{{form.errors.contract_end_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Upload Contract</label>
+                            {{form.upload_contract}}
+                            {% if form.errors.upload_contract %}
+                            <p class="color-red">{{form.errors.upload_contract.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br />
+                    <br />
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Tax Number</label>
+                            {{form.tax_number}}
+                            {% if form.errors.tax_number %}
+                            <p class="color-red">{{form.errors.tax_number.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Status</label>
+                            {{form.contract_status}}
+                            {% if form.errors.contract_status %}
+                            <p class="color-red">{{form.errors.contract_status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md btn-primary s-12">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'create-rpo-user' %}" class="btn btn-success s-12">Create RPO User</a>
+                        <br><br>
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                            <tr class="no-b">
+                                <th>User Id</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Business Phone</th>
+                                <th>Email</th>
+                                <th>Admin</th>
+                                <th>Date/Time</th>
+                                <th>Active</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            {% if rpo_users %}
+                                {% for rpo_user in rpo_users %}
+                                    <tr>
+                                        <td>{{rpo_user.id}}</td>
+                                        <td>{{rpo_user.user.first_name}}</td>
+                                        <td>{{rpo_user.user.last_name}}</td>
+                                        <td>{{rpo_user.user.mobile_number}}</td>
+                                        <td>{{rpo_user.user.email}}</td>
+                                        <td>
+                                            {% if rpo_user.user.user_type == 5 %}
+                                                Yes
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                        </td>
+                                        <td>{{rpo_user.created_at}}</td>
+                                        <td>
+                                            {% if rpo_user.user.is_active == True %}
+                                                Active
+                                            {% else %}
+                                                InActive
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{%url 'edit-rpo-user' rpo_id=rpo_user.id %}"><i class="icon-edit"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    jQuery.validator.addMethod("greaterThan", 
+        function(value, element, params) {
+            // if start date exist
+            if (jQuery(params).val())
+            {
+                console.log("value exist");
+                if (!/Invalid|NaN/.test(new Date(value))) {
+                    return new Date(value) > new Date($(params).val());
+                }
+
+                return isNaN(value) && isNaN($(params).val()) 
+                    || (Number(value) > Number($(params).val()));
+            }
+            else
+            {
+                // if end date exist
+                if (value)
+                {
+                    return false
+                }
+                else
+                {
+                    return true
+                }
+                
+            }
+             
+        },'Must be greater than contract start date.'
+    );
+
+    $('#rpo_form').validate({
+        rules: {
+            country: {
+                required: true
+            },
+            country_code: {
+                required: true
+            },
+            email: {
+                required: true,
+                email: true
+            },
+            company_admin: {
+                required: true
+            },
+            contract_end_date: {
+                greaterThan: "#id_contract_start_date"
+            }
+        }
+    });
+
+    // on load
+    // var company_id = $('.rpo-company').val();
+    // $.ajax({
+    //     url: '/ajax/rpo-company/' + company_id+'/',
+    //     dataType: 'json',
+    //     success: function (data) {
+    //         console.log(data['status']);
+    //     }
+    // });
+
+    $('.rpo-company').on('change', function () {
+        var company_id = $(this).val();
+        $.ajax({
+            url: '/ajax/rpo-company/' + company_id,
+            dataType: 'json',
+            success: function (data) {
+                window.location.reload();
+            }
+        });
+    });
+
+</script>
+{% endblock %}

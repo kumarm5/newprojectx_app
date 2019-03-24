@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    {% if request.user.is_superuser %}
+        Manage Vendors {{ block.super }} 
+    {% else %}
+        My Vendors {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'vendor-user-listing' %}"><i class="icon icon-list"></i>Manage Vendors</a>
+        </li>
+        {% if not request.user.is_superuser %}
+        <li>
+            <a class="nav-link" href="{% url 'vendor-user-create' %}"><i class="icon icon-plus-circle"></i> Add New
+                Vendor</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        {% if request.user.is_superuser %}
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Vendor Id</th>
+                                    <th>Vendor</th>
+                                    <th>Email</th>
+                                    <th>Creation Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if object_list %}
+                                {% for vendor in object_list %}
+                                <tr>
+                                    <td>{{ vendor.id }}</td>
+                                    <td>{{ vendor.vendor.vendor_company_name }}</td>
+                                    <td>{{ vendor.user.email }}</td>
+                                    <td>{{ vendor.created_at }}</td>
+                                    <td>
+                                        <a href="{% url 'vendor-user-edit' id=vendor.id %}"><i class="icon-edit"></i></a>
+                                        &nbsp;
+                                        {% if not request.user.is_superuser %} <a href="#"><i class="icon-add_box text-danger-o text-danger vendor-delete"
+                                                data-id="{{ vendor.id }}"></i></a>{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <br>
+                        <form class="form-inline" id="search-form" name="search-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input type="text" class="form-control r-0 light s-12" name="search_content" id="search_content" placeholder="Search Vendor"> &nbsp;
+                                <input type="submit" class="btn btn-info search s-12" value="Search">
+                            </div>
+                        </form>
+                        <br>
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Vendor Id</th>
+                                    <th>Vendor</th>
+                                    <th>Email</th>
+                                    <th>Creation Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="search-content">
+
+                            </tbody>
+                        </table>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if not request.user.is_superuser %}
+                <br><br>
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- <h3 class="text-center"><u>My Vendors</u></h3> -->
+                        <div class="table-responsive">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Vendor Id</th>
+                                    <th>Vendor</th>
+                                    <th>Vendor Type</th>
+                                    <th>Email</th>
+                                    <th>Vendor Status</th>
+                                    <th>Date-Time</th>
+                                    <th>Last Updated By</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if co_vendor %}
+                                {% for vendor in co_vendor %}
+                                <tr>
+                                    <td>{{ vendor.id }}</td>
+                                    <td>{{ vendor.vendor.vendor_company_name }}</td>
+                                    <td>{{ vendor.sys_vendor_type.type_description }}</td>
+                                    <td>{{ vendor.user.email }}</td>
+                                    <td>
+                                        {% if vendor.status %}
+                                            Active
+                                        {% else %}
+                                            In-Active
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ vendor.updated_at }}</td>
+                                    <td>{{ vendor.owner }}</td>
+                                    <td>
+                                        <a href="{% url 'company-vendor-edit' id=vendor.id %}"><i class="icon-edit"></i></a>
+                                        &nbsp;
+                                        {% if vendor.upload_contract %}
+                                            <a href="{{vendor.upload_contract.url}}"><i class="icon-download"></i></a>
+                                        {% else %}
+                                            <a href="#" class="disabled"><i class="icon-download"></i></a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+
+    $('#search-form').on('submit', function(e){
+        e.preventDefault();
+        search_content = $('#search_content').val();
+
+        if(search_content == ''){
+            $.alert({
+                title: 'Alert!',
+                content: 'Please enter some text to search the vendor.',
+            });
+            return false;
+        }
+
+        $.ajax({
+            type : "POST",
+            url: '/ajax/search-vendor/',
+            data : $("#search-form").serialize(),
+            success: function (data) {
+                $('.search-content').empty();
+                $.each(data, function (key, val) {
+                    $(".search-content").append("\
+                    <tr>\
+                    <td>"+val['vendor_id']+"</td>\
+                    <td>"+val['vendor']+"</td>\
+                    <td>"+val['email']+"</td>\
+                    <td>"+val['date_time']+"</td>\
+                    <td><a href='#'><i class='icon-add_box text-danger-o text-danger add-vendor'\
+                        data-id="+val['vendor_id']+"></i></a>\
+                    </td>\
+                    </tr>\
+                    ");
+                });
+            }
+        });
+    });
+
+    $('body').on('click', '.add-vendor', function() {
+        dom_document = $(this);
+        $.confirm({
+            title: 'Add Vendor To Company',
+            content: '<strong>Are you sure, you want to add vendor to your company?</strong>',
+            icon: 'fa fa-question-circle',
+            animation: 'scale',
+            closeAnimation: 'scale',
+            opacity: 0.5,
+            buttons: {
+                'confirm': {
+                    text: 'Yes',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        vendor_id = dom_document.data("id");
+                        window.location = '/ajax/add-company-vendor/'+vendor_id;
+                    }
+                },
+                cancel: {
+                    text: 'No',
+                    action: function () {
+                        backgroundDismiss: true
+                    }
+                },
+            }
+        });
+    });
+</script>
+{% endblock %}

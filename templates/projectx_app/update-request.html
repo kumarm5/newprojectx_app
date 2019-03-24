@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+    .hide{display:none !important;}
+
+    .sw-theme-default>ul.step-anchor>li {
+        position: relative;
+        margin-right: 8%;
+    }
+
+    .sw-main{
+        width: 100%;
+    }
+
+    .hr_file, .bgv_file{
+        width: 90%;
+        display: inline-table;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <strong>Applicant Name:- {{ my_request.applicant.user.first_name }} {{ my_request.applicant.user.last_name }}</strong>
+        <br>
+        <strong>Applicant Email:- {{ my_request.applicant.user }}</strong>
+        <h3 class="text-center">{{ my_request.co_onboarding_type.co_onboarding_type_name }}</h3>
+        <br>
+        <div class="stepper sw-main">
+            <ul class="nav step-anchor" id="sortable">
+                <li class="wizard-list"><a href="#step-11">Background Verification<br></a></li>
+                <li class="wizard-list"><a href="#step-22">Reference Check<br></a></li>
+                <li class="wizard-list"><a href="#step-33">Employment Forms<br></a></li>
+                <li class="wizard-list"><a href="#step-44">Medical Check<br></a></li>
+            </ul>
+            <div class="card no-b shadow">
+                <div id="step-11" class="card-body text-center p-5">
+                    <form method="post" action="" enctype="multipart/form-data" name="bgv_form">
+                        {% csrf_token %}
+                        <div class="row text-left">
+                            <div class="col-md-6">
+                            {% for document_type in document_types %}
+                                <strong>{{document_type.document_type_name}}</strong>
+                                <br>
+                                {% for document_type_name in document_type_names %}
+                                    {% if document_type_name.documenttype.document_type_name == document_type.document_type_name %}
+                                        <input type="checkbox" name="bgv_document" class="bgv_document" value="{{document_type_name.id}}" {{ document_type_name.id|bgv_ischecked:requesttaskbgv }} > {{document_type_name.document_name}}
+                                        <br>
+                                    {% endif %}
+                                {% endfor %}
+                                <br>
+                            {% endfor %}
+                            </div>
+                            <div class="col-md-6">                            
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if request_bgv_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="{{ request_bgv_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="Background Verification">
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Days to complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" name="bgv_due_date" value="{{ request_bgv_task.request_due_date }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="bgv_comment">{{ request_bgv_task.comments }}</textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="bgv_vendor" class="form-control r-0 light s-12">
+                                        {% for vendor in vendors %}
+                                            <option value="{{ vendor.id }}"
+                                            {% if request_bgv_task.vendor_id == vendor.id %}
+                                                selected="True"
+                                            {% endif %}
+                                            >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>                            
+                            </div>
+                        </div>
+                        <input type="submit" name="save_for_step_1" class="btn btn-success btn-sm" value="Save">
+                    </form>
+                </div>
+                <div id="step-22" class="card-body text-center p-5">
+                    <form method="post" action="" enctype="multipart/form-data" name="ref_form">
+                    {% csrf_token %}
+                    <div class="row text-left">
+                        <div class="col-md-6">
+                            {% for sysrefcheck in sysrefchecks %}
+                                <label><strong><input type="checkbox" name="ref_check" class="ref_check" value="{{sysrefcheck.id}}" {{ sysrefcheck.id|ref_ischecked:requesttaskref }}>{{sysrefcheck.reference_name }}</strong></label>
+                                <input type="text" class="form-control r-0 light s-12" name="ref_no_of_reference" value="{{ sysrefcheck.id|ref_no_reference:requesttaskref }}">
+                                <small>Number of References required</small>
+                                <br><br>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group hide">
+                                <label>Task name</label>
+                                {% if request_ref_task.task_name %}
+                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="{{ request_ref_task.task_name }}">
+                                {% else %}
+                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="Reference Check">
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label>Days to complete</label>
+                                <input type="number" class="form-control r-0 light s-12" value="{{ request_ref_task.request_due_date }}" name="ref_due_date">
+                            </div>
+                            <div class="form-group">
+                                <label>Comment</label>
+                                <textarea class="form-control r-0 light s-12" name="ref_comment">{{ request_ref_task.comments }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vendor</label>
+                                <select name="ref_vendor" class="form-control r-0 light s-12">
+                                    {% for vendor in vendors %}
+                                    <option value="{{ vendor.id }}"
+                                    {% if request_ref_task.vendor_id == vendor.id %}
+                                        selected="True"
+                                    {% endif %}
+                                    >{{ vendor.vendor }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="submit" name="save_for_step_2" class="btn btn-success btn-sm" value="Save">
+                    </form>
+                </div>
+                <div id="step-33" class="card-body text-center p-5">
+                    <form method="post" action="" enctype="multipart/form-data" name="hr_form">
+                    {% csrf_token %}
+                    <div class="row text-left">
+                        <div class="col-md-12">
+                            <table id="example2" class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Template ID</th>
+                                        <th>Name</th>
+                                        <th>Template Type</th>
+                                        <th>Template</th>
+                                        <th>Updated By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if templates %}
+                                        {% for template in templates %}
+                                        <tr>
+                                            <td><input type="checkbox" name="hr_template" class="hr_template" value="{{ template.id }}" {{ template.id|hr_ischecked:requesttaskhr }}></td>
+                                            <td>{{ template.id}}</td>
+                                            <td>{{ template.template_name}}</td>
+                                            <td>{{ template.template_type.template_type_name}}</td>
+                                            <td>
+                                                {% if template.template_doc %}
+                                                <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ template.owner}}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Days to Complete</label>
+                                <input type="number" class="form-control r-0 light s-12" value="{{ request_hr_task.request_due_date }}" name="hr_due_date">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Vendor</label>
+                                <select name="hr_vendor" class="form-control r-0 light s-12">
+                                    {% for vendor in vendors %}
+                                    <option value="{{ vendor.id }}"
+                                    {% if request_hr_task.vendor_id == vendor.id %}
+                                        selected="True"
+                                    {% endif %}
+                                    >{{ vendor.vendor }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-12">
+                            <div class="form-group hide">
+                                <label>Task name</label>
+                                {% if request_hr_task.task_name %}
+                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="{{ request_hr_task.task_name }}">
+                                {% else %}
+                                    <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="Employment Forms">
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Comment</label>
+                                <textarea class="form-control r-0 light s-12" name="hr_comment">{{ request_hr_task.comments }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="submit" name="save_for_step_3" class="btn btn-success btn-sm" value="Save">
+                    </form>
+                </div>
+
+                <div id="step-44" class="card-body text-center p-5">
+                    <form method="post" action="" enctype="multipart/form-data" name="medical_form">
+                        {% csrf_token %}
+                        <table id="example2" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Template ID</th>
+                                    <th>Name</th>
+                                    <th>Template Type</th>
+                                    <th>Template</th>
+                                    <th>Updated By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if templates %}
+                                {% for template in templates %}
+                                <tr>
+                                    <td><input type="checkbox" name="medical_template" class="medical_template" value="{{ template.id }}" {{ template.id|medical_ischecked:requesttaskmedical }}></td>
+                                    <td>{{ template.id}}</td>
+                                    <td>{{ template.template_name}}</td>
+                                    <td>{{ template.template_type.template_type_name}}</td>
+                                    <td>
+                                        {% if template.template_doc %}
+                                        <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ template.owner}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                        <div class="row text-left">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Days to Complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" name="medical_due_date" value="{{ request_medical_task.request_due_date }}">
+                                    <div id="msg_medical_due_date"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="medical_vendor" id="medical_vendor" class="form-control r-0 light s-12"
+                                    {% if request_medical_task.send_to_candidate == True %}
+                                        disabled
+                                    {% endif %}
+                                    >
+                                        {% for vendor in medical_vendors %}
+                                        <option value="{{ vendor.id }}"
+                                        {% if request_medical_task.vendor_id == vendor.id %}
+                                            selected="True"
+                                        {% endif %}
+                                        >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" name="send_to_candidate"
+                                            {% if request_medical_task.send_to_candidate == True %}
+                                                checked
+                                            {% endif %}
+                                            >Send to Candidate</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if request_medical_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="{{ request_medical_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="Medical Check">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="medical_comment">{{ request_medical_task.comments }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="submit" name="save_for_step_4" class="btn btn-success btn-sm" value="Save">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+
+    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> -->
+    <script>
+        // $(function () {
+        //     $("#sortable").sortable({
+        //         update: function(event, ui) {
+        //             $('.wizard-list').each(function(i) {
+        //                 $(this).data('id', i + 1); // updates the data object
+        //                 $(this).attr('data-id', i + 1); // updates the attribute
+        //             });
+        //         }
+        //     });
+        //     $("#sortable").disableSelection();
+        // });
+
+        // step 1
+        $('form[name="bgv_form"]').on('submit', function(e){
+            if($('.bgv_document').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one document.</strong>');
+            }
+        });
+
+        // step 2
+        $('form[name="ref_form"]').on('submit', function(e){
+            if($('.ref_check').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one reference.</strong>');
+            }
+        });
+
+        // step 3
+        $('form[name="hr_form"]').on('submit', function(e){
+            if($('.hr_template').is(":checked") == false){
+                e.preventDefault();
+                $.alert('<strong>Please select atleast one template.</strong>');
+            }
+        });
+
+        // step 4
+        $('input[name="send_to_candidate"]').on('change', function(){
+            if ($(this).is(':checked') == true){
+                $("#medical_vendor").attr('disabled', 'disabled');
+            } else {
+                $("#medical_vendor").removeAttr('disabled');
+            }
+        });
+
+        // $('form[name="medical_form"]').on('submit', function(e){
+        //     if($('.medical_template').is(":checked") == false){
+        //         e.preventDefault();
+        //         $.alert('<strong>Please select atleast one template.</strong>');
+        //     }
+        // });
+
+    </script>
+{% endblock %}

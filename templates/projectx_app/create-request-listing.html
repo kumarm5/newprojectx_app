@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    Create Request {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'request-listing' %}"><i class="icon icon-list"></i>Manage My Requests</a>
+        </li>
+        <li>
+            <a class="nav-link" href="{% url 'create-request-applicant' %}"><i class="icon icon-plus-circle"></i> Add New Applicant</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <form class="form-inline" id="search-form" name="search-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <input type="text" class="form-control r-0 light s-12" name="search_content" id="search_content" placeholder="Search Applicant">
+                                &nbsp;
+                                <input type="submit" class="btn btn-info search s-12" value="Search">
+                            </div>
+                        </form>
+                        <br>
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Applicant ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="search-content">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <br><br><br>
+                        <div class=" text-center">
+                            <h3><u>Sent Requests</u></h3>
+                        </div>
+                        <br>
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Applicant ID</th>
+                                    <th>Joiner Name</th>
+                                    <th>Recruiter</th>
+                                    <th>Job/Role ID</th>
+                                    <th>Hiring Manager</th>
+                                    <th>Event</th>
+                                    <th>Date/Time</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in requested_users %}
+                                    <tr>
+                                        <td>{{ user.applicant_id }}</td>
+                                        <td>{{ user.applicant.user.first_name }} {{ user.applicant.user.last_name }}</td>
+                                        <td>{{ user.recruiter.first_name }} {{ user.recruiter.last_name }}</td>
+                                        <td>{{ user.job_id }}</td>
+                                        <td>{{ user.hiring_manager_user }}</td>
+                                        <td>{{ user.co_onboarding_type }}</td>
+                                        <td>{{ user.created_at }}</td>
+                                        <td>
+                                            {% if user.request_status %}
+                                                Active
+                                            {% else %}
+                                                In-Active
+                                            {% endif %}
+                                        </td>
+                                        <td><a href="{% url 'update-request' id=user.id %}"><i class="icon-edit"></i></a></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.footer }}
+    <script>
+        $('#search-form').on('submit', function(e){
+            e.preventDefault();
+            search_content = $('#search_content').val();
+            $.ajax({
+                type : "POST",
+                url: '/ajax/search-applicant/',
+                data : $("#search-form").serialize(),
+                success: function (data) {                    
+                    $('.search-content').empty();
+                    $.each(data, function (key, val) {                    
+                        $(".search-content").append("\
+                        <tr>\
+                        <td>"+val['applicant_id']+"</td>\
+                        <td>"+val['name']+"</td>\
+                        <td>"+val['email']+"</td>\
+                        <td><strong> Send Onboarding Request </strong><a href='/create-request/"+val['applicant_id']+"'>\
+                        <i class='icon-add_box text-success-o text-success'></i></a>\
+                        </td>\
+                        </tr>\
+                        ");
+                    });
+                }
+            });
+        });
+        // $('.onboarding-type-id').on('change', function () {
+        //     var type_id = $(this).val();
+        //     var user_id = $(this).data('user-id');
+        //     var form = $(this).closest('.row').find('form');
+        //     form.attr('action', '/create-request-form/' + type_id + '/' + user_id + '/');
+        // });
+    </script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    {% if request.user.is_superuser %}
+        Manage Vendors {{ block.super }}
+    {% else %}
+        My Vendors {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'vendor-user-listing' %}"><i class="icon icon-list"></i>Manage Vendors</a>
+        </li>
+        {% if not request.user.is_superuser %}
+        <li>
+            <a class="nav-link {% if not form.instance.id %} active {% endif %}" href="{% url 'vendor-user-create' %}"><i
+                    class="icon icon-plus-circle"></i> Add New Vendor</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <form method="post" name="company_vendor_form" id="company_vendor_form" novalidate="novalidate" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% if form.instance.id %}
+                        <input type="hidden" name="user" value="{{ form.user.value }}">
+                        <input type="hidden" name="owner" value="{{ form.owner.value }}">
+                        <input type="hidden" name="vendor" value="{{ form.vendor.value }}">
+                        <input type="hidden" name="company" value="{{ form.company.value }}">
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Service Provider Type</label>
+                            {{form.service_provider_type}}
+                            {% if form.errors.service_provider_type %}
+                            <p class="color-red">{{form.errors.service_provider_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Status</label>
+                            {{form.status}}
+                            {% if form.errors.status %}
+                            <p class="color-red">{{form.errors.status.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract Start Date</label>
+                            {{form.contract_start_date}}
+                            {% if form.errors.contract_start_date %}
+                            <p class="color-red">{{form.errors.contract_start_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Contract End Date</label>
+                            {{form.contract_end_date}}
+                            {% if form.errors.contract_end_date %}
+                            <p class="color-red">{{form.errors.contract_end_date.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Vendor Type</label>
+                            {{form.sys_vendor_type}}
+                            {% if form.errors.sys_vendor_type %}
+                            <p class="color-red">{{form.errors.sys_vendor_type.as_text}}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-4 col-xs-12">
+                            <label class="form-label">Upload Contract</label>
+                            {{form.upload_contract}}
+                            {% if form.errors.upload_contract %}
+                            <p class="color-red">{{form.errors.upload_contract.as_text}}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row text-center">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-md s-12 btn-primary">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block footer %}
+{{ block.super }}
+<script>
+    jQuery(function () {
+        jQuery('.date-picker').datetimepicker({
+            format: 'Y-m-d',
+            onShow: function (ct) {
+                this.setOptions({
+                    maxDate: jQuery('#date_timepicker_end').val() ? jQuery('#date_timepicker_end').val() : false
+                })
+            },
+            timepicker: false
+        });
+    });
+
+    jQuery.validator.addMethod("greaterThan", 
+        function(value, element, params) {
+            // if start date exist
+            if (jQuery(params).val())
+            {
+                console.log("value exist");
+                if (!/Invalid|NaN/.test(new Date(value))) {
+                    return new Date(value) > new Date($(params).val());
+                }
+
+                return isNaN(value) && isNaN($(params).val()) 
+                    || (Number(value) > Number($(params).val()));
+            }
+            else
+            {
+                // if end date exist
+                if (value)
+                {
+                    return false
+                }
+                else
+                {
+                    return true
+                }
+                
+            }
+             
+        },'Must be greater than contract start date.'
+    );
+
+
+    $('#company_vendor_form').validate({
+        rules: {
+            contract_end_date: {
+                greaterThan: "#id_contract_start_date"
+            }
+        }
+    });
+</script>
+{% endblock %}

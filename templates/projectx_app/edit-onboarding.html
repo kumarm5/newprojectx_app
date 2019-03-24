@@ -1,0 +1,1268 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+
+{% block pagetitle %}
+    My Onboarding Steps {{ block.super }}
+{% endblock %}
+
+
+{% block toplinks %}
+{{ block.super }}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link" href="{% url 'onboarding-listing' %}"><i class="icon icon-list"></i>Manage Onboarding</a>
+        </li>
+        <li>
+            <a class="nav-link" href="{% url 'create-onboarding-info' %}"><i class="icon icon-plus-circle"></i> Add New
+                OnBoarding</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<style>
+    .hide {
+        display: none !important;
+    }
+
+    .sw-theme-default>ul.step-anchor>li {
+        position: relative;
+        margin-right: 25%;
+    }
+
+.swMain {
+  position:relative;
+  display:block;
+  margin:0;
+  padding:0;
+  border: 0px solid #CCC;
+  overflow:visible;
+  float:left;
+  width:100%;
+}
+.swMain .stepContainer {
+  display:block;
+  position: relative;
+  margin: 0;
+  padding:0;    
+  border: 0px solid #CCC;    
+  overflow:hidden;
+  clear:both;
+  height:auto;
+}
+
+.swMain .stepContainer div.content {
+  display:block;
+  position: absolute;  
+  float:left;
+  margin: 0;
+  padding:5px;    
+  border: 1px solid #CCC; 
+  font: normal 12px Verdana, Arial, Helvetica, sans-serif; 
+  color:#5A5655;   
+  background-color:#F8F8F8;  
+  height:auto;
+  text-align:left;
+  overflow:visible;    
+  z-index:88; 
+  -webkit-border-radius: 5px;
+  -moz-border-radius  : 5px;
+  width:100%;
+  clear:both;
+}
+
+.swMain div.actionBar {
+  display:block;
+  position: relative; 
+  clear:both;
+  margin:             3px 0 0 0;   
+  border:             1px solid #CCC;
+  padding:            0;    
+  color:              #5A5655;   
+  background-color:   #F8F8F8;
+  height:40px;
+  text-align:left;
+  overflow:auto;    
+  z-index:88; 
+
+  -webkit-border-radius: 5px;
+  -moz-border-radius  : 5px;
+  left:0;
+}
+
+.swMain .stepContainer .StepTitle {
+  display:block;
+  position: relative;
+  margin:0;   
+  border:1px solid #E0E0E0;
+  padding:5px;   
+  font: bold 16px Verdana, Arial, Helvetica, sans-serif; 
+  color:#5A5655;   
+  background-color:#E0E0E0;
+  clear:both;
+  text-align:left; 
+  z-index:88;
+  -webkit-border-radius: 5px;
+  -moz-border-radius  : 5px;    
+}
+.swMain ul.anchor {
+  position: relative;
+  display:block;
+  float:left;
+  list-style: none;
+  padding: 0px;  
+  margin: 10px 0;      
+  clear: both;
+  border: 0px solid #CCCCCC;    
+  background: transparent; /*#EEEEEE */
+}
+.swMain ul.anchor li{ 
+  position: relative; 
+  display:block;
+  margin: 0;
+  padding: 0; 
+  padding-left:3px;
+  padding-right: 3px;
+  border: 0px solid #E0E0E0;      
+  float: left;
+}
+/* Anchor Element Style */
+.swMain ul.anchor li a {
+  display:block;
+  position:relative;
+  float:left;
+  margin:0;
+  padding:3px;
+  height:60px;
+  /* width:300px; */
+  text-decoration: none;
+  outline-style:none;
+  -moz-border-radius  : 5px;
+  -webkit-border-radius: 5px;
+  z-index:99;
+}
+.swMain ul.anchor li a .stepNumber{
+  position:relative;
+  float:left;
+  width:30px;
+  text-align: center;
+  padding:5px;
+  padding-top:0;
+  font: bold 45px Verdana, Arial, Helvetica, sans-serif;
+}
+.swMain ul.anchor li a .stepDesc{
+  position:relative;
+  display:block;
+  float:left;
+  text-align: left;
+  padding:5px;
+
+  font: bold 20px Verdana, Arial, Helvetica, sans-serif;
+}
+.swMain ul.anchor li a .stepDesc small{
+  font: normal 12px Verdana, Arial, Helvetica, sans-serif;
+}
+.swMain ul.anchor li a.selected{
+  color:#F8F8F8;
+  background: #EA8511;  /* EA8511 */
+  border: 1px solid #EA8511;
+  cursor:text;
+  -moz-box-shadow: 5px 5px 8px #888;
+  -webkit-box-shadow: 5px 5px 8px #888;
+  box-shadow: 5px 5px 8px #888;
+}
+.swMain ul.anchor li a.selected:hover {
+  color:#F8F8F8;  
+  background: #EA8511;  
+}
+
+.swMain ul.anchor li a.done { 
+  position:relative;
+  color:#FFF;  
+  background: #8CC63F;  
+  border: 1px solid #8CC63F;   
+  z-index:99;
+}
+.swMain ul.anchor li a.done:hover {
+  color:#5A5655;  
+  background: #8CC63F; 
+  border: 1px solid #5A5655;   
+}
+.swMain ul.anchor li a.disabled {
+  color:#CCCCCC;  
+  background: #F8F8F8;
+  border: 1px solid #CCC;  
+  cursor:text;   
+}
+.swMain ul.anchor li a.disabled:hover {
+  color:#CCCCCC;  
+  background: #F8F8F8;     
+}
+
+.swMain ul.anchor li a.error {
+  color:#6c6c6c !important;  
+  background: #f08f75 !important;
+  border: 1px solid #fb3500 !important;      
+}
+.swMain ul.anchor li a.error:hover {
+  color:#000 !important;       
+}
+
+.swMain .buttonNext {
+  display:block;
+  float:right;
+  margin:5px 3px 0 3px;
+  padding:5px;
+  text-decoration: none;
+  text-align: center;
+  font: bold 13px Verdana, Arial, Helvetica, sans-serif;
+  width:100px;
+  color:#FFF;
+  outline-style:none;
+  background-color:   #5A5655;
+  border: 1px solid #5A5655;
+  -moz-border-radius  : 5px; 
+  -webkit-border-radius: 5px;    
+}
+.swMain .buttonDisabled {
+  color:#F8F8F8  !important;
+  background-color: #CCCCCC !important;
+  border: 1px solid #CCCCCC  !important;
+  cursor:text;    
+}
+.swMain .buttonPrevious {
+  display:block;
+  float:right;
+  margin:5px 3px 0 3px;
+  padding:5px;
+  text-decoration: none;
+  text-align: center;
+  font: bold 13px Verdana, Arial, Helvetica, sans-serif;
+  width:100px;
+  color:#FFF;
+  outline-style:none;
+  background-color:   #5A5655;
+  border: 1px solid #5A5655;
+  -moz-border-radius  : 5px; 
+  -webkit-border-radius: 5px;    
+}
+.swMain .buttonFinish {
+  display:block;
+  float:right;
+  margin:5px 10px 0 3px;
+  padding:5px;
+  text-decoration: none;
+  text-align: center;
+  font: bold 13px Verdana, Arial, Helvetica, sans-serif;
+  width:100px;
+  color:#FFF;
+  outline-style:none;
+  background-color:   #5A5655;
+  border: 1px solid #5A5655;
+  -moz-border-radius  : 5px; 
+  -webkit-border-radius: 5px;    
+}
+
+/* Form Styles */
+
+.txtBox {
+  border:1px solid #CCCCCC;
+  color:#5A5655;
+  font:13px Verdana,Arial,Helvetica,sans-serif;
+  padding:2px;
+  width:430px;
+}
+.txtBox:focus {
+  border:1px solid #EA8511;
+}
+
+.swMain .loader {
+  position:relative;  
+  display:none;
+  float:left;  
+  margin: 2px 0 0 2px;
+  padding:8px 10px 8px 40px;
+  border: 1px solid #FFD700; 
+  font: bold 13px Verdana, Arial, Helvetica, sans-serif; 
+  color:#5A5655;       
+  background: #FFF url(../images/loader.gif) no-repeat 5px;  
+  -moz-border-radius  : 5px;
+  -webkit-border-radius: 5px;
+  z-index:998;
+}
+.swMain .msgBox {
+  position:relative;  
+  display:none;
+  float:left;
+  margin: 4px 0 0 5px;
+  padding:5px;
+  border: 1px solid #FFD700; 
+  background-color: #FFFFDD;  
+  font: normal 12px Verdana, Arial, Helvetica, sans-serif; 
+  color:#5A5655;         
+  -moz-border-radius  : 5px;
+  -webkit-border-radius: 5px;
+  z-index:999;
+  min-width:200px;  
+}
+.swMain .msgBox .content {
+  font: normal 12px Verdana,Arial,Helvetica,sans-serif;
+  padding: 0px;
+  float:left;
+}
+.swMain .msgBox .close {
+  border: 1px solid #CCC;
+  border-radius: 3px;
+  color: #CCC;
+  display: block;
+  float: right;
+  margin: 0 0 0 5px;
+  outline-style: none;
+  padding: 0 2px 0 2px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+}
+.swMain .msgBox .close:hover{
+  color: #EA8511;
+  border: 1px solid #EA8511;  
+}
+</style>
+
+<form method="post" enctype="multipart/form-data" id="onboarding_form" name="onboarding_form">
+    {% csrf_token %}
+    <div class="row text-center">
+        <div class="col-sm-3 col-xs-12"></div>
+        <div class="col-sm-6 col-xs-12">
+            <br>
+            <div class="form-group">
+                <label><strong>Name Recruitment Category</strong></label>
+                <input type="text" class="form-control r-0 light s-12" placeholder="Name Recruitment Category"
+                    name="boarding_type_name" value="{{ coonboardingtype.co_onboarding_type_name }}">
+                <div id="msg_boarding_type_name"></div>
+            </div>
+        </div>
+        <div class="col-sm-3 col-xs-12"></div>
+    </div>
+    <div class="card my-3">
+        <div class="card-header white">
+            <h1>Onboarding Steps</h1>
+        </div>
+        <form action="#" method="POST">
+
+            <input type='hidden' name="issubmit" value="1">
+
+            <!-- Tabs -->
+
+            <div id="wizard" class="swMain">
+                <ul>
+                    <li>
+                        <a href="#step-1">
+                            <label class="stepNumber"></label>
+                            <span class="stepDesc">
+                                Background Verification <br />
+                                <small>Fill your details</small>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#step-2">
+                            <label class="stepNumber"></label>
+                            <span class="stepDesc">
+                                Reference Check <br />
+                                <small>Fill your details</small>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#step-3">
+                            <label class="stepNumber"></label>
+                            <span class="stepDesc">
+                                Employment Forms <br />
+                                <small>Fill your details</small>
+                            </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#step-4">
+                            <label class="stepNumber"></label>
+                            <span class="stepDesc">
+                                Medical Check <br />
+                                <small>Fill your details</small>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="step-1">
+                    <div class="col-md-12">
+                        <h2 class="StepTitle">Step 1: Details</h2>
+                        <div class="row text-left">
+                            <div class="col-sm-6 col-xs-12">
+                                {% for document_type in document_types %}
+                                <br><br>
+                                <strong>{{document_type.document_type_name}}</strong>
+                                <br><br>
+                                {% for document_type_name in document_type_names %}
+                                <div style="margin-left:10%;">
+                                    {% if document_type_name.documenttype.document_type_name == document_type.document_type_name %}
+                                        <input type="checkbox" name="bgv_document" value="{{document_type_name.id}}" {{ document_type_name.id|bgv_ischecked:coonboardingtaskbgv }} > {{document_type_name.document_name}}
+                                        <br>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <br><br>
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if co_onboarding_bgv_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="{{ co_onboarding_bgv_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_one" value="Background Verification">
+                                    {% endif %}
+                                    <div id="msg_task_name_step_one"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Days to complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" name="bgv_due_date" value="{{ co_onboarding_bgv_task.due_date }}">
+                                    <div class="text-danger" id="msg_bgv_due_date"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="bgv_comment">{{ co_onboarding_bgv_task.comment }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="bgv_vendor" class="form-control r-0 light s-12">
+                                        {% for vendor in vendors %}
+                                        <option value="{{ vendor.id }}"
+                                            {% if co_onboarding_bgv_task.vendor_id == vendor.id %}
+                                                selected="True"
+                                            {% endif %}
+                                        >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-2">
+                    <h2 class="StepTitle">Step 2: Details</h2>
+                    <br>
+                    <div class="col-md-12">
+                        <div class="row text-left">
+                            <div class="col-sm-6 col-xs-12">
+                                {% for sysrefcheck in sysrefchecks %}
+                                <div class="form-group">
+                                    <label><strong><input type="checkbox" name="ref_check" value="{{sysrefcheck.id}}" {{ sysrefcheck.id|ref_ischecked:coonboardingtaskref }}>{{sysrefcheck.reference_name }}</strong></label>
+                                    <input type="text" class="form-control r-0 light s-12" name="ref_no_of_reference"
+                                        value="{{ sysrefcheck.id|ref_no_reference:coonboardingtaskref }}" disabled>
+                                    <small>Number of References required</small>
+                                </div>
+                                {% endfor %}
+                                <div id="msg_ref_no_of_reference"></div>
+                                <br><br>
+                            </div>
+
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if co_onboarding_ref_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="{{ co_onboarding_ref_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_two" value="Reference Check">
+                                    {% endif %}
+                                    <div id="msg_task_name_step_two"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Days to complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" value="{{ co_onboarding_ref_task.due_date }}" name="ref_due_date">
+                                    <div class="text-danger" id="msg_ref_due_date"></div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="ref_comment">{{ co_onboarding_ref_task.comment }}</textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="ref_vendor" class="form-control r-0 light s-12">
+                                        {% for vendor in vendors %}
+                                        <option value="{{ vendor.id }}"
+                                        {% if co_onboarding_ref_task.vendor_id == vendor.id %}
+                                            selected="True"
+                                        {% endif %}
+                                        >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-3">
+                    <h2 class="StepTitle">Step 3: Details</h2>
+                    <br>
+                    <div class="col-md-12">
+                        <table id="example2" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Template ID</th>
+                                    <th>Name</th>
+                                    <th>Template Type</th>
+                                    <th>Template</th>
+                                    <th>Updated By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if templates %}
+                                {% for template in templates %}
+                                <tr>
+                                    <td><input type="checkbox" name="hr_template" value="{{ template.id }}" {{ template.id|hr_ischecked:coonboardingtaskhr }}></td>
+                                    <td>{{ template.id}}</td>
+                                    <td>{{ template.template_name}}</td>
+                                    <td>{{ template.template_type.template_type_name}}</td>
+                                    <td>
+                                        {% if template.template_doc %}
+                                        <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ template.owner}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Days to Complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" value="{{ co_onboarding_hr_task.due_date }}" name="hr_due_date">
+                                    <div class="text-danger" id="msg_hr_due_date"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="hr_vendor" class="form-control r-0 light s-12">
+                                        {% for vendor in vendors %}
+                                        <option value="{{ vendor.id }}"
+                                        {% if co_onboarding_hr_task.vendor_id == vendor.id %}
+                                            selected="True"
+                                        {% endif %}
+                                        >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if co_onboarding_hr_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="{{ co_onboarding_hr_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="task_name_step_three" value="Employment Forms">
+                                    {% endif %}
+                                    <div id="msg_task_name_step_three"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="hr_comment">{{ co_onboarding_hr_task.comment }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-4">
+                    <h2 class="StepTitle">Step 4: Details</h2>
+                    <br>
+                    <div class="col-md-12">
+                        <table id="example2" class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Select</th>
+                                    <th>Template ID</th>
+                                    <th>Name</th>
+                                    <th>Template Type</th>
+                                    <th>Template</th>
+                                    <th>Updated By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if templates %}
+                                {% for template in templates %}
+                                <tr>
+                                    <td><input type="checkbox" name="medical_template" value="{{ template.id }}" {{ template.id|medical_ischecked:coonboardingtaskmedical }}></td>
+                                    <td>{{ template.id}}</td>
+                                    <td>{{ template.template_name}}</td>
+                                    <td>{{ template.template_type.template_type_name}}</td>
+                                    <td>
+                                        {% if template.template_doc %}
+                                        <a href="{{template.template_doc.url}}">{{template.template_doc}}</a>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ template.owner}}</td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+
+                        <div class="row">
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label>Days to Complete</label>
+                                    <input type="number" class="form-control r-0 light s-12" name="medical_due_date" value="{{ co_onboarding_medical_task.due_date }}">
+                                    <div class="text-danger" id="msg_medical_due_date"></div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <select name="medical_vendor" id="medical_vendor" class="form-control r-0 light s-12"
+                                    {% if co_onboarding_medical_task.send_to_candidate == True %}
+                                        disabled
+                                    {% endif %}
+                                    >
+                                        {% for vendor in medical_vendors %}
+                                        <option value="{{ vendor.id }}"
+                                        {% if co_onboarding_medical_task.vendor_id == vendor.id %}
+                                            selected="True"
+                                        {% endif %}
+                                        >{{ vendor.vendor }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="send_to_candidate"
+                                            {% if co_onboarding_medical_task.send_to_candidate == True %}
+                                                checked
+                                            {% endif %}
+                                            >Send to Candidate
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-xs-12">
+                                <div class="form-group hide">
+                                    <label>Task name</label>
+                                    {% if co_onboarding_medical_task.task_name %}
+                                        <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="{{ co_onboarding_medical_task.task_name }}">
+                                    {% else %}
+                                        <input type="text" class="form-control r-0 light s-12" name="medical_task_name_step_four" value="Medical Form">
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-xs-12">
+                                <div class="form-group">
+                                    <label>Comment</label>
+                                    <textarea class="form-control r-0 light s-12" name="medical_comment">{{ co_onboarding_medical_task.comment }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- End SmartWizard Content -->
+
+        </form>
+
+    </div>
+</form>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+
+    $('input[name="send_to_candidate"]').on('change', function(){
+        if ($(this).is(':checked') == true){
+            $("#medical_vendor").attr('disabled', 'disabled');
+        } else {
+            $("#medical_vendor").removeAttr('disabled');
+        }
+    });
+
+    (function (a) {
+        a.fn.smartWizard = function (k) {
+            var c = a.extend({}, a.fn.smartWizard.defaults, k),
+                u = arguments;
+            return this.each(function () {
+                function z() {
+                    var d = b.children("div");
+                    b.children("ul").addClass("anchor");
+                    d.addClass("content");
+                    l = a("<div>Loading</div>").addClass("loader");
+                    i = a("<div></div>").addClass("actionBar");
+                    m = a("<div></div>").addClass("stepContainer");
+                    n = a("<a>" + c.labelNext + "</a>").attr("href", "#").addClass("buttonNext");
+                    o = a("<a>" + c.labelPrevious + "</a>").attr("href", "#").addClass("buttonPrevious");
+                    p = a("<a>" + c.labelFinish + "</a>").attr("href", "#").addClass("buttonFinish");
+                    c.errorSteps && c.errorSteps.length > 0 && a.each(c.errorSteps, function (a, b) {
+                        v(b, !0)
+                    });
+                    m.append(d);
+                    i.append(l);
+                    b.append(m);
+                    b.append(i);
+                    i.append(p).append(n).append(o);
+                    w = m.width();
+                    a(n).click(function () {
+                        x();
+                        return !1
+                    });
+                    a(o).click(function () {
+                        y();
+                        return !1
+                    });
+                    a(p).click(function () {
+                        if (!a(this).hasClass("buttonDisabled")) if (a.isFunction(c.onFinish)) c.onFinish.call(this, a(f));
+                        else {
+                            var d = b.parents("form");
+                            d && d.length && d.submit()
+                        }
+                        return !1
+                    });
+                    a(f).bind("click", function () {
+                        if (f.index(this) == h) return !1;
+                        var a = f.index(this);
+                        f.eq(a).attr("isDone") - 0 == 1 && q(a);
+                        return !1
+                    });
+                    c.keyNavigation && a(document).keyup(function (a) {
+                        a.which == 39 ? x() : a.which == 37 && y()
+                    });
+                    A();
+                    q(h)
+                }
+                function A() {
+                    c.enableAllSteps ? (a(f, b).removeClass("selected").removeClass("disabled").addClass("done"), a(f, b).attr("isDone", 1)) : (a(f, b).removeClass("selected").removeClass("done").addClass("disabled"), a(f, b).attr("isDone", 0));
+                    a(f, b).each(function (d) {
+                        a(a(this).attr("href"), b).hide();
+                        a(this).attr("rel", d + 1)
+                    })
+                }
+                function q(d) {
+                    var e = f.eq(d),
+                        g = c.contentURL,
+                        h = e.data("hasContent");
+                    stepNum = d + 1;
+                    g && g.length > 0 ? c.contentCache && h ? t(d) : a.ajax({
+                        url: g,
+                        type: "POST",
+                        data: {
+                            step_number: stepNum
+                        },
+                        dataType: "text",
+                        beforeSend: function () {
+                            l.show()
+                        },
+                        error: function () {
+                            l.hide()
+                        },
+                        success: function (c) {
+                            l.hide();
+                            c && c.length > 0 && (e.data("hasContent", !0), a(a(e, b).attr("href"), b).html(c), t(d))
+                        }
+                    }) : t(d)
+                }
+                function t(d) {
+                    var e = f.eq(d),
+                        g = f.eq(h);
+                    if (d != h && a.isFunction(c.onLeaveStep) && !c.onLeaveStep.call(this, a(g))) return !1;
+                    m.height(a(a(e, b).attr("href"), b).outerHeight());
+                    if (c.transitionEffect == "slide") a(a(g, b).attr("href"), b).slideUp("fast", function () {
+                        a(a(e, b).attr("href"), b).slideDown("fast");
+                        h = d;
+                        r(g, e)
+                    });
+                    else if (c.transitionEffect == "fade") a(a(g, b).attr("href"), b).fadeOut("fast", function () {
+                        a(a(e, b).attr("href"), b).fadeIn("fast");
+                        h = d;
+                        r(g, e)
+                    });
+                    else if (c.transitionEffect == "slideleft") {
+                        var i = 0;
+                        d > h ? (nextElmLeft1 = w + 10, nextElmLeft2 = 0, i = 0 - a(a(g, b).attr("href"), b).outerWidth()) : (nextElmLeft1 = 0 - a(a(e, b).attr("href"), b).outerWidth() + 20, nextElmLeft2 = 0, i = 10 + a(a(g, b).attr("href"), b).outerWidth());
+                        d == h ? (nextElmLeft1 = a(a(e, b).attr("href"), b).outerWidth() + 20, nextElmLeft2 = 0, i = 0 - a(a(g, b).attr("href"), b).outerWidth()) : a(a(g, b).attr("href"), b).animate({
+                            left: i
+                        }, "fast", function () {
+                            a(a(g, b).attr("href"), b).hide()
+                        });
+                        a(a(e, b).attr("href"), b).css("left", nextElmLeft1);
+                        a(a(e, b).attr("href"), b).show();
+                        a(a(e, b).attr("href"), b).animate({
+                            left: nextElmLeft2
+                        }, "fast", function () {
+                            h = d;
+                            r(g, e)
+                        })
+                    } else a(a(g, b).attr("href"), b).hide(), a(a(e, b).attr("href"), b).show(), h = d, r(g, e);
+                    return !0
+                }
+
+                function r(d, e) {
+                    a(d, b).removeClass("selected");
+                    a(d, b).addClass("done");
+                    a(e, b).removeClass("disabled");
+                    a(e, b).removeClass("done");
+                    a(e, b).addClass("selected");
+                    a(e, b).attr("isDone", 1);
+                    c.cycleSteps || (0 >= h ? a(o).addClass("buttonDisabled") : a(o).removeClass("buttonDisabled"), f.length - 1 <= h ? a(n).addClass("buttonDisabled") : a(n).removeClass("buttonDisabled"));
+                    !f.hasClass("disabled") || c.enableFinishButton ? a(p).removeClass("buttonDisabled") : a(p).addClass("buttonDisabled");
+                    if (a.isFunction(c.onShowStep) && !c.onShowStep.call(this, a(e))) return !1
+                }
+                function x() {
+                    var a = h + 1;
+                    if (f.length <= a) {
+                        if (!c.cycleSteps) return !1;
+                        a = 0
+                    }
+                    q(a)
+                }
+                function y() {
+                    var a = h - 1;
+                    if (0 > a) {
+                        if (!c.cycleSteps) return !1;
+                        a = f.length - 1
+                    }
+                    q(a)
+                }
+                function B(b) {
+                    a(".content", j).html(b);
+                    j.show()
+                }
+                function v(d, c) {
+                    c ? a(f.eq(d - 1), b).addClass("error") : a(f.eq(d - 1), b).removeClass("error")
+                }
+                var b = a(this),
+                    h = c.selected,
+                    f = a("ul > li > a", b),
+                    w = 0,
+                    l, j, i, m, n, o, p;
+                i = a(".actionBar", b);
+                i.length == 0 && (i = a("<div></div>").addClass("actionBar"));
+                j = a(".msgBox", b);
+                j.length == 0 && (j = a('<div class="msgBox"><div class="content"></div><a href="#" class="close">X</a></div>'), i.append(j));
+                a(".close", j).click(function () {
+                    j.fadeOut("normal");
+                    return !1
+                });
+                if (k === "init" || typeof k === "object") z();
+                else if (k === "showMessage") {
+                    var s = Array.prototype.slice.call(u, 1);
+                    B(s[0]);
+                    return !0
+                } else if (k === "setError") return s = Array.prototype.slice.call(u, 1), v(s[0].stepnum, s[0].iserror), !0;
+                else a.error("Method " + k + " does not exist")
+            })
+        };
+        a.fn.smartWizard.defaults = {
+            selected: 0,
+            keyNavigation: !0,
+            enableAllSteps: !1,
+            transitionEffect: "fade",
+            contentURL: null,
+            contentCache: !0,
+            cycleSteps: !1,
+            enableFinishButton: !1,
+            errorSteps: [],
+            labelNext: "Next",
+            labelPrevious: "Previous",
+            labelFinish: "Finish",
+            onLeaveStep: null,
+            onShowStep: null,
+            onFinish: null
+        }
+    })(jQuery);
+
+
+    $(document).ready(function () {
+
+        $('input[name="ref_check"]').each(function(){
+            checked = $(this).is(":checked");
+            if (checked == true) {
+                $(this).parent().parent().next().removeAttr('disabled');
+            } else {
+                $(this).parent().parent().next().attr('disabled', true);
+            }
+        });
+
+        $('input[name="ref_check"]').on('change', function () {
+            checked = $(this).is(":checked");
+            if (checked == true) {
+                $(this).parent().parent().next().removeAttr('disabled');
+            } else {
+                $(this).parent().parent().next().attr('disabled', true);
+            }
+        });
+
+        // Smart Wizard         
+        $('#wizard').smartWizard({
+            transitionEffect: 'slideleft',
+            onLeaveStep: leaveAStepCallback,
+            onFinish: onFinishCallback,
+            enableFinishButton: true
+        });
+
+
+        function leaveAStepCallback(obj) {
+
+            var step_num = obj.attr('rel');
+
+            return validateSteps(step_num);
+
+        }
+
+
+
+        function onFinishCallback() {
+
+            if (validateAllSteps()) {
+
+                $('form').submit();
+
+            }
+
+        }
+
+
+
+    });
+
+
+
+    function validateAllSteps() {
+
+        var isStepValid = true;
+
+
+
+        if (validateStep1() == false) {
+
+            isStepValid = false;
+
+            $('#wizard').smartWizard('setError', {
+                stepnum: 1,
+                iserror: true
+            });
+        } else {
+            $('#wizard').smartWizard('setError', {
+                stepnum: 1,
+                iserror: false
+            });
+        }
+
+        if (validateStep2() == false) {
+            isStepValid = false;
+            $('#wizard').smartWizard('setError', {
+                stepnum: 2,
+                iserror: true
+            });
+        } else {
+            $('#wizard').smartWizard('setError', {
+                stepnum: 2,
+                iserror: false
+            });
+        }
+
+        if (validateStep3() == false) {
+            isStepValid = false;
+            $('#wizard').smartWizard('setError', {
+                stepnum: 3,
+                iserror: true
+            });
+        } else {
+            $('#wizard').smartWizard('setError', {
+                stepnum: 3,
+                iserror: false
+            });
+        }
+
+        if (validateStep4() == false) {
+            isStepValid = false;
+            $('#wizard').smartWizard('setError', {
+                stepnum: 4,
+                iserror: true
+            });
+        } else {
+            $('#wizard').smartWizard('setError', {
+                stepnum: 4,
+                iserror: false
+            });
+        }
+
+        if (!isStepValid) {
+            $('#wizard').smartWizard('showMessage', 'Please correct the errors the steps and continue');
+
+        }
+
+
+
+        return isStepValid;
+
+    }
+
+
+    function validateSteps(step) {
+        var isStepValid = true;
+        // validate step 1
+        if (step == 1) {
+            if (validateStep1() == false) {
+                isStepValid = false;
+                $('#wizard').smartWizard('showMessage', 'Please correct the errors in step' + step + ' and click next.');
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: true
+                });
+            } else {
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: false
+                });
+            }
+        }
+
+        // validate step 2
+        if (step == 2) {
+            if (validateStep2() == false) {
+                isStepValid = false;
+                $('#wizard').smartWizard('showMessage', 'Please correct the errors in step' + step + ' and click next.');
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: true
+                });
+            } else {
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: false
+                });
+            }
+        }
+
+
+        // validate step3
+        if (step == 3) {
+            if (validateStep3() == false) {
+                isStepValid = false;
+                $('#wizard').smartWizard('showMessage', 'Please correct the errors in step' + step + ' and click next.');
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: true
+                });
+            } else {
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: false
+                });
+            }
+        }
+
+        // validate step4
+        if (step == 4) {
+            if (validateStep4() == false) {
+                isStepValid = false;
+                $('#wizard').smartWizard('showMessage', 'Please correct the errors in step' + step + ' and click next.');
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: true
+                });
+            } else {
+                $('#wizard').smartWizard('setError', {
+                    stepnum: step,
+                    iserror: false
+                });
+            }
+        }
+
+        return isStepValid;
+    }
+
+    function validateStep1() {
+        var isValid = true;
+
+        var bgv_document_is_checked = $("input[name='bgv_document']:checked").length > 0;
+
+        if (bgv_document_is_checked == true) {
+            task_name_step_one = $('input[name="task_name_step_one"]').val();
+            if (task_name_step_one == "") {
+                var isValid = false;
+                $('#msg_task_name_step_one').html('Please enter task name').show();
+            } else {
+                $('#msg_task_name_step_one').html('').hide();
+            }
+
+            var bgv_due_date = $("input[name='bgv_due_date']").val();
+            if ((bgv_due_date == "") || (bgv_due_date == "0") || (isNaN(bgv_due_date) == true)) {
+                var isValid = false;
+                $('#msg_bgv_due_date').html('Please enter valid due days').show();
+            } else {
+                $('#msg_bgv_due_date').html('').hide();
+            }
+        }
+
+        var boarding_type_name = $('input[name="boarding_type_name"]').val();
+
+        if (boarding_type_name == "") {
+            var isValid = false;
+            $('#msg_boarding_type_name').html('Please enter onboarding type name').show();
+        } else {
+            $('#msg_boarding_type_name').html('').hide();
+        }
+
+        return isValid;
+    }
+
+    function validateStep2() {
+        var isValid = true;
+
+        var ref_check_is_checked = $("input[name='ref_check']:checked").length > 0;
+
+        if (ref_check_is_checked == true) {
+            task_name_step_one = $('input[name="task_name_step_two"]').val();
+            if (task_name_step_one == "") {
+                var isValid = false;
+                $('#msg_task_name_step_two').html('Please enter task name').show();
+            } else {
+                $('#msg_task_name_step_two').html('').hide();
+            }
+
+            var ref_due_date = $("input[name='ref_due_date']").val();
+            if ((ref_due_date == "") || (ref_due_date == "0") || (isNaN(ref_due_date) == true)) {
+                var isValid = false;
+                $('#msg_ref_due_date').html('Please enter valid due days').show();
+            } else {
+                $('#msg_ref_due_date').html('').hide();
+            }
+        }
+
+        var boarding_type_name = $('input[name="boarding_type_name"]').val();
+
+        if (boarding_type_name == "") {
+            var isValid = false;
+            $('#msg_boarding_type_name').html('Please enter onboarding type name').show();
+        } else {
+            $('#msg_boarding_type_name').html('').hide();
+        }
+
+        var ref_no_of_reference = $("input[name='ref_no_of_reference']").prop('disabled');
+
+        if (ref_no_of_reference == false) {
+            ref_no_of_reference = $("input[name='ref_no_of_reference']").val();
+
+            if ((ref_no_of_reference == 0) || (ref_no_of_reference > 5)) {
+                var isValid = false;
+                $('#msg_ref_no_of_reference').html('Please enter valid no. of reference. It should not be more than 5 or equals to 0 reference').show();
+            } else {
+                $('#msg_ref_no_of_reference').html('').hide();
+            }
+        }
+
+        return isValid;
+    }
+
+    function validateStep3() {
+        var isValid = true;
+
+        var hr_check_is_checked = $("input[name='hr_template']:checked").length > 0;
+
+        if (hr_check_is_checked == true) {
+            task_name_step_three = $('input[name="task_name_step_three"]').val();
+            if (task_name_step_three == "") {
+                var isValid = false;
+                $('#msg_task_name_step_three').html('Please enter task name').show();
+            } else {
+                $('#msg_task_name_step_three').html('').hide();
+            }
+
+            var hr_due_date = $("input[name='hr_due_date']").val();
+            if ((hr_due_date == "") || (hr_due_date == "0") || (isNaN(hr_due_date) == true)) {
+                var isValid = false;
+                $('#msg_hr_due_date').html('Please enter valid due days').show();
+            } else {
+                $('#msg_hr_due_date').html('').hide();
+            }
+        }
+
+        var boarding_type_name = $('input[name="boarding_type_name"]').val();
+
+        if (boarding_type_name == "") {
+            var isValid = false;
+            $('#msg_boarding_type_name').html('Please enter onboarding type name').show();
+        } else {
+            $('#msg_boarding_type_name').html('').hide();
+        }
+
+        return isValid;
+    }
+
+    function validateStep4() {
+        var isValid = true;
+
+        var medical_check_is_checked = $("input[name='medical_template']:checked").length > 0;
+
+        if (medical_check_is_checked == true) {
+            task_name_step_four = $('input[name="task_name_step_four"]').val();
+            if (task_name_step_four == "") {
+                var isValid = false;
+                $('#msg_task_name_step_four').html('Please enter task name').show();
+            } else {
+                $('#msg_task_name_step_four').html('').hide();
+            }
+
+            var medical_due_date = $("input[name='medical_due_date']").val();
+            if ((medical_due_date == "") || (medical_due_date == "0") || (isNaN(medical_due_date) == true)) {
+                var isValid = false;
+                $('#msg_medical_due_date').html('Please enter valid due days').show();
+            } else {
+                $('#msg_medical_due_date').html('').hide();
+            }
+        }
+
+        var boarding_type_name = $('input[name="boarding_type_name"]').val();
+
+        if (boarding_type_name == "") {
+            var isValid = false;
+            $('#msg_boarding_type_name').html('Please enter onboarding type name').show();
+        } else {
+            $('#msg_boarding_type_name').html('').hide();
+        }
+
+        return isValid;
+    }
+
+    function isValidEmailAddress(emailAddress) {
+        var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+        return pattern.test(emailAddress);
+    }
+</script>
+{% endblock %}

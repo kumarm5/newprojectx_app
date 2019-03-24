@@ -1,0 +1,1306 @@
+{% extends 'base.html' %}
+{% load filter %}
+
+{% block pagetitle %}
+    My Task {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'my-task' %}"><i class="icon icon-list"></i>All
+                Tasks</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .hide{display:none !important;}
+
+    .sw-theme-default>ul.step-anchor>li {
+        position: relative;
+        margin-right: 8%;
+    }
+
+    .sw-main{
+        width: 100%;
+    }
+
+    .hr_file, .bgv_file, .medical_file{
+        width: 90%;
+        display: inline-table;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+        <div class="alert alert-info alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+            </button>
+            {% for message in messages %}
+            <strong>
+                {{message}}
+            </strong>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <br>
+        <div class="card no-b">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="stepper sw-main" data-options='{
+                            "transitionEffect":"fade"
+                            }'>
+                        <ul class="nav step-anchor">
+                            <li><a href="#step-11">Background Verification<br></a></li>
+                            <li><a href="#step-22">Reference Check<br></a></li>
+                            <li><a href="#step-33">Employment Forms<br></a></li>
+                            <li><a href="#step-44">Medical Check<br></a></li>
+                        </ul>
+
+                        <div class="card no-b shadow">
+                            <div id="step-11" class="card-body p-5">
+                                <div class="col-12">
+                                    <form method="post" action="" enctype="multipart/form-data" name='bgv_form'>
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            {% if bgv_details %}
+                                            <div class="col-sm-10 col-xs-12">
+                                                <div class="col-sm-12 col-xs-12 text-left">
+                                                    <strong>Due Date:- {{ bgv_due_date|date:'d-m-Y' }}</strong>
+                                                    <br><br>
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Document Name</th>
+                                                                <th>Upload File</th>
+                                                                <th>Mark Complete</th>
+                                                                <th>Not Applicable</th>
+                                                            </tr>
+                                                        </thead>
+                                                            <input type="hidden" name="bgv_due_date" value="{{ bgv_due_date|date:'d-m-Y' }}">
+                                                            <input type="hidden" name="bgv_step_id" value="{{ bgv_step_id }}">
+                                                            <input type="hidden" name="bgv_task_id" value="{{ bgv_task_id }}">
+                                                            <input type="hidden" name="bgv_task_name" value="{{ bgv_task_name }}">
+                                                            <input type="hidden" name="bgv_vendor" value="{{ bgv_vendor_id }}">
+                                                            <input type="hidden" name="bgv_update" value="{{ bgv_myrequest_task }}">
+                                                            <input type="hidden" name="bgv_submit" value="False">
+                                                        <tbody class="bgv_table_body">
+                                                            {% for bgv_detail in bgv_details %}
+                                                            <tr>
+                                                                <td>{{ bgv_detail.document.document_name }}</td>
+                                                                {% if bgv_task_id not in completed_task %}
+                                                                <td>
+                                                                    <input type="hidden" name="bgv_document_id" value="{{ bgv_detail.document.id }}">
+                                                                    <input type="file" class="form-control r-0 light s-12 bgv_file" name="bgv_file" class="file_value">
+                                                                    <i class="icon-window-close file-remove-icon"></i>
+                                                                    <input type="hidden" name="file_list" class="file_list" value="">
+                                                                    {% autoescape off %}
+                                                                        {{ bgv_myrequest_task|get_bgv_step_one_files:bgv_detail.document.id }}
+                                                                    {% endautoescape %}
+                                                                </td>
+                                                                <td>
+                                                                    <input type="checkbox" name="bgv_mark_complete"
+                                                                        {% if bgv_myrequest_task|get_bgv_step_one_mark_complete:bgv_detail.document.id  %}
+                                                                            checked
+                                                                        {% endif %}
+                                                                    >
+                                                                    <input type="hidden" name="bgv_mark_complete_value" value="False">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="checkbox" name="bgv_mark_applicable"
+                                                                    {% if bgv_myrequest_task|get_bgv_step_one_mark_applicable:bgv_detail.document.id  %}
+                                                                        checked
+                                                                    {% endif %}
+                                                                    >
+                                                                    <input type="hidden" name="bgv_mark_applicable_value" value="False">
+                                                                </td>
+                                                                {% else %}
+                                                                <td>
+                                                                    <input type="file" disabled  class="form-control r-0 light s-12 bgv_file" name="bgv_file">
+                                                                    {% autoescape off %}
+                                                                        {{ bgv_myrequest_task|get_bgv_step_one_files:bgv_detail.document.id }}
+                                                                    {% endautoescape %}
+                                                                </td>
+                                                                <td><input type="checkbox" disabled name="bgv_mark_complete"
+                                                                    {% if bgv_myrequest_task|get_bgv_step_one_mark_complete:bgv_detail.document.id  %}
+                                                                        checked
+                                                                    {% endif %}
+                                                                    >
+                                                                </td>
+                                                                <td><input type="checkbox" disabled name="bgv_mark_applicable"
+                                                                    {% if bgv_myrequest_task|get_bgv_step_one_mark_applicable:bgv_detail.document.id  %}
+                                                                        checked
+                                                                    {% endif %}
+                                                                    >
+                                                                </td>
+                                                                {% endif %}
+                                                            </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                    <br>
+                                                    {% if myrequest_tasks_bgv_info.comments %}
+                                                        <Strong>Comment: </Strong>{{ myrequest_tasks_bgv_info.comments }}
+                                                    {% else %}
+                                                        <Strong>Comment: </Strong>No Comment
+                                                    {% endif %}
+                                                    <br><br>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2 col-xs-12 text-center">
+                                                <br><br>
+                                                <h3>Progress</h3>
+                                                <span class="easy-pie-chart easy-pie-chart-lg" data-percent="{{ bgv_myrequest_task|get_graph_percentage_for_bgv_step }}"
+                                                    data-options='{
+                                                        "lineCap":"square",
+                                                        "lineWidth": 14,
+                                                        "barColor": "#03a9f4",
+                                                        "size":150
+                                                        }'>
+                                                    <span class="percent">{{ bgv_myrequest_task|get_graph_percentage_for_bgv_step }}</span>
+                                                </span>
+                                                <br><br>
+                                            </div>
+                                            <div class="col-12 text-center">
+                                                {% if bgv_task_id in completed_task %}
+                                                <strong class="text-info">This task is submitted.</strong><br><br>
+                                                <button type="submit" disabled name="save_for_later_step_1" class="btn btn-md s-12 btn-primary">Save for Later</button>
+                                                <button type="submit" disabled name="submit_step_1" class="btn btn-md s-12 btn-success">Save</button>
+                                                {% else %}
+                                                <button type="submit" name="save_for_later_step_1" class="save_for_later_step_1 btn btn-md s-12 btn-primary">Save for Later</button>
+                                                <button type="submit" name="submit_step_1" class="submit_step_1 btn btn-md s-12 btn-success">Save</button>
+                                                {% endif %}
+                                            </div>
+                                            {% else %}
+                                            <div class="col-md-12 text-center">
+                                                <h3>No Task</h3>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div id="step-22" class="card-body p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="ref_form">
+                                    {% csrf_token %}
+                                    <div class="row text-left">
+                                        {% if ref_details %}
+                                        <div class="col-sm-10 col-xs-12">
+                                            <strong>Due Date:- {{ ref_due_date|date:'d-m-Y' }}</strong>
+                                            <br><br>
+                                            <input type="hidden" name="ref_due_date" value="{{ ref_due_date|date:'d-m-Y' }}">
+                                            <input type="hidden" name="ref_step_id" value="{{ ref_step_id }}">
+                                            <input type="hidden" name="ref_task_id" value="{{ ref_task_id }}">
+                                            <input type="hidden" name="ref_task_name" value="{{ ref_task_name }}">
+                                            <input type="hidden" name="ref_vendor" value="{{ ref_vendor_id }}">
+                                            <input type="hidden" name="ref_update" value="{{ ref_myrequest_task }}">
+                                            <input type="hidden" name="ref_submit" value="False">
+                                            <br>
+                                            {% for ref_detail in ref_details %}
+                                            <div class="row ref-detail-row">
+                                                <div class="col-sm-6 col-xs-12">
+                                                    {% if forloop.counter == 1 %}
+                                                    <strong>Reference Details</strong>
+                                                    <br><br>
+                                                    {% endif %}
+                                                    {{ ref_detail.reference_check.reference_name }}
+                                                    {% if ref_task_id in completed_task %}
+                                                        {% for reference in no_of_reference %}
+                                                            {% if forloop.parentloop.counter  == forloop.counter %}
+                                                                {% for ref in  reference %}
+                                                                <div class="form-group">
+                                                                    <input type="text" disabled class="form-control r-0 light s-12" name="ref_name" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_name_second:forloop.counter0 }}"
+                                                                        placeholder="Enter Name">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" disabled class="form-control r-0 light s-12" name="ref_organisation" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_organisation_second:forloop.counter0 }}"
+                                                                        placeholder="Enter Organisation">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" disabled class="form-control r-0 light s-12" name="ref_phone" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_phone_second:forloop.counter0 }}"
+                                                                        placeholder="Enter Phone">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="email" disabled class="form-control r-0 light s-12" name="ref_office_email" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_office_email_second:forloop.counter0 }}"
+                                                                        placeholder="Enter Office Email">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" disabled class="form-control r-0 light s-12" name="ref_relation" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_relation_second:forloop.counter0 }}"
+                                                                        placeholder="Enter Relationship">
+                                                                </div>
+                                                                <hr>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% else %}
+                                                        {% for reference in no_of_reference %}
+                                                            {% if forloop.parentloop.counter  == forloop.counter %}
+                                                                {% for ref in  reference %}
+                                                                <input type="hidden" name="ref_mark_complete_value" value="False">
+                                                                <input type="hidden" name="ref_mark_applicable_value" value="False">
+                                                                <input type="hidden" name="reference_id" value="{{ ref_detail.reference_check_id }}">
+                                                                <div class="form-group">
+                                                                    <input type="text" class="form-control r-0 light s-12" name="ref_name"
+                                                                        placeholder="Enter Name" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_name_second:forloop.counter0 }}">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" class="form-control r-0 light s-12" name="ref_organisation"
+                                                                        placeholder="Enter Organisation" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_organisation_second:forloop.counter0 }}">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" class="form-control r-0 light s-12" name="ref_phone"
+                                                                        placeholder="Enter Phone" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_phone_second:forloop.counter0 }}">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="email" class="form-control r-0 light s-12" name="ref_office_email"
+                                                                        placeholder="Enter Office Email" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_office_email_second:forloop.counter0 }}">
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <input type="text" class="form-control r-0 light s-12" name="ref_relation"
+                                                                        placeholder="Enter Relationship" value="{{ ref_myrequest_task|get_ref_step_two:ref_detail.reference_check_id|get_ref_step_two_ref_relation_second:forloop.counter0 }}">
+                                                                </div>
+                                                                <hr>
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                    <br><br>
+                                                </div>
+
+                                                <div class="col-sm-3 col-xs-12">
+                                                    {% if forloop.counter == 1 %}
+                                                    <strong>Mark Complete</strong>
+                                                    <br><br>
+                                                    {% endif %}
+                                                    {% if ref_task_id in completed_task %}
+                                                    <input type="checkbox" disabled class="form-control r-0 light s-12"
+                                                    {% if ref_myrequest_task|get_ref_step_two_ref_mark_complete:ref_detail.reference_check_id %}
+                                                        checked
+                                                    {% endif %}
+                                                    >
+                                                    {% else %}
+                                                    <input type="checkbox" class="form-control r-0 light s-12 ref-mark-complete"
+                                                    {% if ref_myrequest_task|get_ref_step_two_ref_mark_complete:ref_detail.reference_check_id %}
+                                                        checked
+                                                    {% endif %}
+                                                    >
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class="col-sm-3 col-xs-12">
+                                                    {% if forloop.counter == 1 %}
+                                                    <strong>Not Applicable</strong>
+                                                    <br><br>
+                                                    {% endif %}
+                                                    {% if ref_task_id in completed_task %}
+                                                    <input type="checkbox" disabled class="form-control r-0 light s-12"
+                                                    {% if ref_myrequest_task|get_ref_step_two_ref_mark_applicable:ref_detail.reference_check_id %}
+                                                        checked
+                                                    {% endif %}
+                                                    >
+                                                    {% else %}
+                                                    <input type="checkbox" class="form-control r-0 light s-12 ref-mark-applicable"
+                                                    {% if ref_myrequest_task|get_ref_step_two_ref_mark_applicable:ref_detail.reference_check_id %}
+                                                        checked
+                                                    {% endif %}
+                                                    >
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                            <br>                                            
+                                            {% if myrequest_tasks_ref_info.comments %}
+                                            <Strong>Comment: </Strong>{{ myrequest_tasks_ref_info.comments }}
+                                            {% else %}
+                                            <Strong>Comment: </Strong>No Comment
+                                            {% endif %}                                                
+                                            <br><br>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-12 text-center">
+                                            <br><br><br><br>
+                                            <h3>Progress</h3>
+                                            
+                                            <span class="easy-pie-chart easy-pie-chart-lg" data-percent="{{ ref_myrequest_task|get_graph_percentage_for_ref_step }}"
+                                                data-options='{
+                                                "lineCap":"square",
+                                                "lineWidth": 14,
+                                                "barColor": "#03a9f4",
+                                                "size":150
+                                                }'>
+                                                <span class="percent">{{ ref_myrequest_task|get_graph_percentage_for_ref_step }}</span>
+                                            </span>
+                                            
+                                            <br><br>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            {% if ref_task_id in completed_task %}
+                                            <strong class="text-info">This task is submitted.</strong><br><br>
+                                            <button type="submit" disabled name="save_for_later_step_2" class="btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" disabled name="submit_step_2" class="btn btn-md s-12 btn-success">Save</button>
+                                            {% else %}
+                                            <button type="submit" name="save_for_later_step_2" class="save_for_later_step_2 btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" name="submit_step_2" class="submit_step_2 btn btn-md s-12 btn-success">Save</button>
+                                            {% endif %}
+                                        </div>
+                                        {% else %}
+                                        <div class="col-md-12 text-center">
+                                            <h3>No Task</h3>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div id="step-33" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="hr_form">
+                                    {% csrf_token %}                                    
+                                    {% if hr_details %}
+                                    <div class="row text-left">
+                                        <div class="col-sm-10 col-xs-12">
+                                            <strong>Due Date:- {{ hr_due_date|date:'d-m-Y' }}</strong>
+                                            <br><br>
+                                            <input type="hidden" name="hr_due_date" value="{{ hr_due_date|date:'d-m-Y' }}">
+                                            <input type="hidden" name="hr_step_id" value="{{ hr_step_id }}">
+                                            <input type="hidden" name="hr_task_id" value="{{ hr_task_id }}">
+                                            <input type="hidden" name="hr_task_name" value="{{ hr_task_name }}">
+                                            <input type="hidden" name="hr_vendor" value="{{ hr_vendor_id }}">
+                                            <input type="hidden" name="hr_update" value="{{ hr_myrequest_task }}">
+                                            <input type="hidden" name="hr_submit" value="False">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Document Name</th>
+                                                        <th>Upload File</th>
+                                                        <th>Mark Complete</th>
+                                                        <th>Not Applicable</th>
+                                                        <th>Template File</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="hr_table_body">
+                                                    {% for hr_detail in hr_details %}
+                                                    <tr>
+                                                        <td>{{ hr_detail.template.template_name }}</td>
+                                                        {% if hr_task_id not in completed_task %}
+                                                        <td>
+                                                            <input type="hidden" name="hr_document_id" value="{{ hr_detail.template.id }}">
+                                                            <input type="file" class="form-control r-0 light s-12 hr_file" name="hr_file">
+                                                            <i class="icon-window-close file-remove-icon"></i>
+                                                            <input type="hidden" name="hr_file_list" class="hr_file_list" value="">
+                                                            {% autoescape off %}
+                                                                {{ hr_myrequest_task|get_hr_step_three_files:hr_detail.template.id }}
+                                                            {% endautoescape %}
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" name="hr_mark_complete"
+                                                            {% if hr_myrequest_task|get_hr_step_three_mark_complete:hr_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                            <input type="hidden" name="hr_mark_complete_value" value="False">
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" name="hr_mark_applicable"
+                                                            {% if hr_myrequest_task|get_hr_step_three_mark_applicable:hr_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                            <input type="hidden" name="hr_mark_applicable_value" value="False">
+                                                        </td>
+                                                        <td>
+                                                            <a href="{{ hr_detail.template.template_doc.url }}"> {{ hr_detail.template.template_doc.name }} </a>
+                                                        </td>
+                                                        {% else %}
+                                                        <td>
+                                                        <input type="file" disabled class="form-control r-0 light s-12" name="hr_file">
+                                                        {% autoescape off %}
+                                                            {{ hr_myrequest_task|get_hr_step_three_files:hr_detail.template.id }}
+                                                        {% endautoescape %}
+                                                        </td>
+                                                        <td><input type="checkbox" disabled name="hr_mark_complete"
+                                                            {% if hr_myrequest_task|get_hr_step_three_mark_complete:hr_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                        </td>
+                                                        <td><input type="checkbox" disabled name="hr_mark_applicable"
+                                                            {% if hr_myrequest_task|get_hr_step_three_mark_applicable:hr_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                        </td>
+                                                        <td><a href="{{ hr_detail.template.template_doc.url }}"> {{ hr_detail.template.template_doc.name }} </a></td>
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                            {% if myrequest_tasks_hr_info.comments %}
+                                            <Strong>Comment: </Strong>{{ myrequest_tasks_hr_info.comments }}
+                                            {% else %}
+                                            <Strong>Comment: </Strong>No Comment
+                                            {% endif %}
+                                            <br><br>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-12 text-center">
+                                            <br><br>
+                                            <h3>Progress</h3>
+                                            <span class="easy-pie-chart easy-pie-chart-lg" data-percent="{{ hr_myrequest_task|get_graph_percentage_for_hr_step }}"
+                                                data-options='{
+                                                        "lineCap":"square",
+                                                        "lineWidth": 14,
+                                                        "barColor": "#03a9f4",
+                                                        "size":150
+                                                        }'>
+                                                <span class="percent">{{ hr_myrequest_task|get_graph_percentage_for_hr_step }}</span>
+                                            </span>
+                                            <br><br>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            {% if hr_task_id in completed_task %}
+                                            <strong class="text-info">This task is submitted.</strong><br><br>
+                                            <button type="submit" disabled name="save_for_later_step_3" class="btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" disabled name="submit_step_3" class="btn btn-md s-12 btn-success">Save</button>
+                                            {% else %}
+                                            <button type="submit" name="save_for_later_step_3" class="save_for_later_step_3 btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" name="submit_step_3" class="submit_step_3 btn btn-md s-12 btn-success">Save</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="col-md-12 text-center">
+                                        <h3>No Task</h3>
+                                    </div>
+                                    {% endif %}
+                                </form>
+                            </div>
+
+                            <div id="step-44" class="card-body text-center p-5">
+                                <form method="post" action="" enctype="multipart/form-data" name="medical_form">
+                                    {% csrf_token %}
+                                    {% if medical_details %}
+                                    <div class="row text-left">
+                                        <div class="col-sm-10 col-xs-12">
+                                            <strong>Due Date:- {{ medical_due_date|date:'d-m-Y' }}</strong>
+                                            <br><br>
+                                            <input type="hidden" name="medical_due_date" value="{{ medical_due_date|date:'d-m-Y' }}">
+                                            <input type="hidden" name="medical_step_id" value="{{ medical_step_id }}">
+                                            <input type="hidden" name="medical_task_id" value="{{ medical_task_id }}">
+                                            <input type="hidden" name="medical_task_name" value="{{ medical_task_name }}">
+                                            <input type="hidden" name="medical_vendor" value="{{ medical_vendor_id }}">
+                                            <input type="hidden" name="medical_update" value="{{ medical_myrequest_task }}">
+                                            <input type="hidden" name="send_to_candidate" value="{{ medical_send_to_candidate }}">
+                                            <input type="hidden" name="medical_submit" value="False">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Document Name</th>
+                                                        <th>Upload File</th>
+                                                        <th>Mark Complete</th>
+                                                        <th>Not Applicable</th>
+                                                        <th>Template File</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="medical_table_body">
+                                                    {% for medical_detail in medical_details %}
+                                                    <tr>
+                                                        <td>{{ medical_detail.template.template_name }}</td>
+                                                        {% if medical_task_id not in completed_task %}
+                                                        <td>
+                                                            <input type="hidden" name="medical_document_id" value="{{ medical_detail.template.id }}">
+                                                            <input type="file" class="form-control r-0 light s-12 medical_file" name="medical_file">
+                                                            <i class="icon-window-close file-remove-icon"></i>
+                                                            <input type="hidden" name="medical_file_list" class="medical_file_list" value="">
+                                                            {% autoescape off %}
+                                                                {{ medical_myrequest_task|get_medical_step_four_files:medical_detail.template.id }}
+                                                            {% endautoescape %}
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" name="medical_mark_complete"
+                                                            {% if medical_myrequest_task|get_medical_step_four_mark_complete:medical_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                            <input type="hidden" name="medical_mark_complete_value" value="False">
+                                                        </td>
+                                                        <td>
+                                                            <input type="checkbox" name="medical_mark_applicable"
+                                                            {% if medical_myrequest_task|get_medical_step_four_mark_applicable:medical_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                            <input type="hidden" name="medical_mark_applicable_value" value="False">
+                                                        </td>
+                                                        <td>
+                                                            <a href="{{ medical_detail.template.template_doc.url }}"> {{ medical_detail.template.template_doc.name }} </a>
+                                                        </td>
+                                                        {% else %}
+                                                        <td>
+                                                        <input type="file" disabled class="form-control r-0 light s-12" name="medical_file">
+                                                        {% autoescape off %}
+                                                            {{ medical_myrequest_task|get_medical_step_four_files:medical_detail.template.id }}
+                                                        {% endautoescape %}
+                                                        </td>
+                                                        <td><input type="checkbox" disabled name="medical_mark_complete"
+                                                            {% if medical_myrequest_task|get_medical_step_four_mark_complete:medical_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                        </td>
+                                                        <td><input type="checkbox" disabled name="medical_mark_applicable"
+                                                            {% if medical_myrequest_task|get_medical_step_four_mark_applicable:medical_detail.template.id  %}
+                                                                checked
+                                                            {% endif %}
+                                                            >
+                                                        </td>
+                                                        <td><a href="{{ medical_detail.template.template_doc.url }}"> {{ medical_detail.template.template_doc.name }} </a></td>
+                                                        {% endif %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                            <br>
+                                            {% if myrequest_tasks_medical_info.comments %}
+                                            <Strong>Comment: </Strong>{{ myrequest_tasks_medical_info.comments }}
+                                            {% else %}
+                                            <Strong>Comment: </Strong>No Comment
+                                            {% endif %}
+                                            <br><br>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-12 text-center">
+                                            <br><br>
+                                            <h3>Progress</h3>
+                                            <span class="easy-pie-chart easy-pie-chart-lg" data-percent="{{ medical_myrequest_task|get_graph_percentage_for_medical_step }}"
+                                                data-options='{
+                                                        "lineCap":"square",
+                                                        "lineWidth": 14,
+                                                        "barColor": "#03a9f4",
+                                                        "size":150
+                                                        }'>
+                                                <span class="percent">{{ medical_myrequest_task|get_graph_percentage_for_medical_step }}</span>
+                                            </span>
+                                            <br><br>
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            {% if medical_task_id in completed_task %}
+                                            <strong class="text-info">This task is submitted.</strong><br><br>
+                                            <button type="submit" disabled name="save_for_later_step_4" class="btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" disabled name="submit_step_4" class="btn btn-md s-12 btn-success">Save</button>
+                                            {% else %}
+                                            <button type="submit" name="save_for_later_step_4" class="save_for_later_step_4 btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" name="submit_step_4" class="submit_step_4 btn btn-md s-12 btn-success">Save</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% elif medical_send_to_candidate == True or medical_vendor != "" %}
+                                    <div class="row text-left">
+                                        <div class="col-sm-10 col-xs-12">
+                                            <strong>Due Date:- {{ medical_due_date|date:'d-m-Y' }}</strong>
+                                            <input type="hidden" name="medical_due_date" value="{{ medical_due_date|date:'d-m-Y' }}">
+                                            <input type="hidden" name="medical_step_id" value="{{ medical_step_id }}">
+                                            <input type="hidden" name="medical_task_id" value="{{ medical_task_id }}">
+                                            <input type="hidden" name="medical_task_name" value="{{ medical_task_name }}">
+                                            <input type="hidden" name="medical_vendor" value="{{ medical_vendor_id }}">
+                                            <input type="hidden" name="medical_update" value="{{ medical_myrequest_task }}">
+                                            <input type="hidden" name="send_to_candidate" value="{{ medical_send_to_candidate }}">
+                                            <input type="hidden" name="medical_submit" value="False">
+                                            <br><br>
+                                            <div class="form-group row">
+                                                <label for="upload-file" class="col-md-2 col-form-label">Upload Files</label>
+                                                <div class="col-md-8">
+                                                    {% if medical_task_id not in completed_task %}
+                                                        <input type="file" class="form-control r-0 light s-12" name="medical_file" multiple>
+                                                    {% else %}
+                                                        <input type="file" class="form-control r-0 light s-12" name="medical_file" disabled>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <br>
+                                            {% if candidate_medical_files %}
+                                            <h4 class="text-center">Uploaded Files</h4>
+                                            <hr>
+                                            {% for medical_detail in candidate_medical_files %}
+                                                <p><a href="{{ medical_detail.document_name.url }}">{{ medical_detail.document_name.name }}</a></p>
+                                            {% endfor %}
+                                            <hr>
+                                            {% endif %}
+
+                                            {% if myrequest_tasks_medical_info.comments %}
+                                                <Strong>Comment: </Strong>{{ myrequest_tasks_medical_info.comments }}
+                                            {% else %}
+                                                <Strong>Comment: </Strong>No Comment
+                                            {% endif %}
+                                            <br><br>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-12 text-center">
+                                            <h3>Progress</h3>
+                                            {% if medical_task_id in completed_task %}
+                                            <span class="easy-pie-chart easy-pie-chart-lg" data-percent="100"
+                                                data-options='{
+                                                        "lineCap":"square",
+                                                        "lineWidth": 14,
+                                                        "barColor": "#03a9f4",
+                                                        "size":150
+                                                        }'>
+                                                <span class="percent">100</span>
+                                            </span>
+                                            <br><br>
+                                            {% else %}
+                                            <span class="easy-pie-chart easy-pie-chart-lg" data-percent="0"
+                                                data-options='{
+                                                        "lineCap":"square",
+                                                        "lineWidth": 14,
+                                                        "barColor": "#03a9f4",
+                                                        "size":150
+                                                        }'>
+                                                <span class="percent">0</span>
+                                            </span>
+                                            <br><br>
+                                            {% endif %}
+                                        </div>
+                                        <div class="col-12 text-center">
+                                            {% if medical_task_id in completed_task %}
+                                            <strong class="text-info">This task is submitted.</strong><br><br>
+                                            <button type="submit" disabled name="save_for_later_step_4" class="btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" disabled name="submit_step_4" class="btn btn-md s-12 btn-success">Save</button>
+                                            {% else %}
+                                            <button type="submit" name="save_for_later_step_4" class="save_for_later_step_4 btn btn-md s-12 btn-primary">Save for Later</button>
+                                            <button type="submit" name="submit_step_4" class="submit_step_4 btn btn-md s-12 btn-success">Save</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="col-md-12 text-center">
+                                        <h3>No Task</h3>
+                                    </div>
+                                    {% endif %}
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function(){
+
+            $('.file-remove-icon').on('click', function(){                
+                $(this).prev().val('');
+            });
+
+            // bgv form validation
+            $("input[name='bgv_mark_applicable']").each(function () {
+                var bgv_mark_applicable_is_checked = $(this).is(':checked');
+                if (bgv_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+            $("input[name='bgv_mark_complete']").each(function () {
+                var bgv_mark_applicable_is_checked = $(this).is(':checked');
+                if (bgv_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+            $("input[name='bgv_mark_applicable']").on('change', function () {
+
+                var is_mark_complete = $(this).closest('tr').find("input[name='bgv_mark_complete']").is(":checked");
+                if(is_mark_complete == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove mark complete check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var bgv_mark_applicable_is_checked = $(this).is(":checked");
+                if (bgv_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+
+            });
+
+            $("input[name='bgv_mark_complete']").on('change', function () {
+                var is_applicable_check = $(this).closest('tr').find("input[name='bgv_mark_applicable']").is(":checked");
+
+                if(is_applicable_check == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove not applicable check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var bgv_mark_complete_is_checked = $(this).is(":checked");
+                if (bgv_mark_complete_is_checked == true) {
+                    var bgv_mark_complete = false;
+                    $(this).next().val('True');
+
+                    var bgv_file = $(this).closest('tr').find('.bgv_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if((document_file.length == 1) || (bgv_file != "")){
+                        bgv_mark_complete = true;
+                    }
+
+                    if (bgv_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'Please upload the file first',
+                        });
+                        $(this).prop('checked', false);
+                        $(this).next().val('False');
+                    }
+                } else {
+                    var bgv_mark_complete = true;
+                    $(this).next().val('False');
+
+                    var bgv_file = $(this).closest('tr').find('.bgv_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if ((document_file.length == 1) || (bgv_file != "")) {
+                        bgv_mark_complete = false;
+                    }
+
+                    if (bgv_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'File already exist.',
+                        });
+                        $(this).prop('checked', true);
+                        $(this).next().val('True');
+                    }
+                }
+            });
+
+            $(".save_for_later_step_1").on('click', function(event){
+                validate = true;
+                event.preventDefault();
+
+                $('input[name="bgv_submit"]').val('False');
+
+                $('.file_list').each(function(){
+                    var file_name = $(this).prev().prev().val();
+                    if(file_name == ''){
+                        $(this).val('False');
+                    } else {
+                        $(this).val('True');
+                    }
+                });
+
+                $('.bgv_table_body > tr').each(function () {
+                    bgv_file = $(this).find('input[name="bgv_file"]').val();
+                    bgv_mark_complete = $(this).find('input[name="bgv_mark_complete"]').is(':checked');
+                    if (bgv_file != '') {
+                        if (bgv_mark_complete == false) {
+                            validate = false;
+                            $.alert({
+                                title: 'Alert!',
+                                content: 'Please check mark complete where you have selected the file.',
+                            });
+                        }
+                    }
+                });
+
+                if(validate == true){
+                    $("form[name='bgv_form']").submit();
+                } else {
+                    return false;
+                }
+
+            });
+
+            $(".submit_step_1").on('click', function (event) {
+                validation_failed = new Array();
+
+                event.preventDefault();
+                
+                $('input[name="bgv_submit"]').val('True');
+
+                $('.file_list').each(function(){
+                    var file_name = $(this).prev().prev().val();
+                    if(file_name == ''){
+                        $(this).val('False');
+                    } else {
+                        $(this).val('True');
+                    }
+                });
+
+                $('.bgv_table_body > tr').each(function () {
+                    bgv_mark_complete = $(this).find('input[name="bgv_mark_complete"]').is(':checked');
+                    bgv_mark_applicable = $(this).find('input[name="bgv_mark_applicable"]').is(':checked');
+                    if ((bgv_mark_complete == true) || (bgv_mark_applicable == true)) {
+                        validation_failed.push('false');
+                    } else {
+                        validation_failed.push('true');
+                    }
+                });
+
+                if (validation_failed.includes('true') == true) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'All Task items must be complete to submit this step.',
+                    });
+                } else {
+                    $("form[name='bgv_form']").submit();
+                }
+            });
+            
+            // ref form validation
+            
+            $(".ref-mark-complete").each(function () {
+                var ref_mark_applicable_is_checked = $(this).is(':checked');
+                if (ref_mark_applicable_is_checked == true) {
+                    $(this).closest('.row').find('input[name="ref_mark_complete_value"]').val('True');
+                } else {
+                    $(this).closest('.row').find('input[name="ref_mark_complete_value"]').val('False');
+                }
+            });
+
+            $(".ref-mark-applicable").each(function () {
+                var ref_mark_applicable_is_checked = $(this).is(':checked');
+                if (ref_mark_applicable_is_checked == true) {
+                    $(this).closest('.row').find('input[name="ref_mark_applicable_value"]').val('True');
+                } else {
+                    $(this).closest('.row').find('input[name="ref_mark_applicable_value"]').val('False');
+                }
+            });
+
+            $('.ref-mark-complete').on('change', function(){
+                is_complete = true;
+                $($(this).closest('.row').find('input[name="ref_name"]')).each(function(){
+                    if($(this).val() == ""){
+                        is_complete = false;
+                    }
+                });
+
+                $($(this).closest('.row').find('input[name="ref_organisation"]')).each(function(){
+                    if($(this).val() == ""){
+                        is_complete = false;
+                    }
+                });
+
+                $($(this).closest('.row').find('input[name="ref_phone"]')).each(function(){
+                    if($(this).val() == ""){
+                        is_complete = false;
+                    }
+                });
+                
+                $($(this).closest('.row').find('input[name="ref_office_email"]')).each(function(){
+                    if($(this).val() == ""){
+                        is_complete = false;
+                    }
+                });
+
+                $($(this).closest('.row').find('input[name="ref_relation"]')).each(function(){
+                    if($(this).val() == ""){
+                        is_complete = false;
+                    }
+                });
+
+                if (is_complete == false){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'Fill All the details',
+                    });
+                    $(this).prop('checked', false);
+                }
+
+                var is_checked = $(this).is(':checked');
+                if(is_checked == true){
+                    $(this).closest('.row').find('input[name="ref_mark_complete_value"]').val('True');
+                } else {
+                    $(this).closest('.row').find('input[name="ref_mark_complete_value"]').val('False');
+                }
+            });
+
+
+            $('.ref-mark-applicable').on('change', function () {
+                var is_checked = $(this).is(':checked');
+                if (is_checked == true) {
+                    $(this).closest('.row').find('input[name="ref_mark_applicable_value"]').val('True');
+                } else {
+                    $(this).closest('.row').find('input[name="ref_mark_applicable_value"]').val('False');
+                }
+            });
+
+
+            $(".submit_step_2").on('click', function (event) {
+                validation_failed = new Array();
+
+                event.preventDefault();
+                $('input[name="ref_submit"]').val('True');
+
+                $('.ref-detail-row').each(function () {
+                    ref_mark_complete = $(this).find('.ref-mark-complete').is(':checked');
+                    ref_mark_applicable = $(this).find('.ref-mark-applicable').is(':checked');
+                    if ((ref_mark_complete == true) || (ref_mark_applicable == true)) {
+                        validation_failed.push('false');
+                    } else {
+                        validation_failed.push('true');
+                    }
+                });
+
+                if (validation_failed.includes('true') == true) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'All Task items must be complete to submit this step.',
+                    });
+                } else {
+                    $("form[name='ref_form']").submit();
+                }
+
+            });
+
+            // hr form validation
+
+            $("input[name='hr_mark_applicable']").each(function () {
+                var hr_mark_applicable_is_checked = $(this).is(':checked');
+                if (hr_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+            $("input[name='hr_mark_complete']").each(function () {
+                var hr_mark_applicable_is_checked = $(this).is(':checked');
+                if (hr_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+
+            $("input[name='hr_mark_applicable']").on('change', function () {
+
+                var is_mark_complete = $(this).closest('tr').find("input[name='hr_mark_complete']").is(":checked");
+                if(is_mark_complete == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove mark complete check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var hr_mark_applicable_is_checked = $(this).is(":checked");
+                if (hr_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+
+            });
+
+            $("input[name='hr_mark_complete']").on('change', function () {
+                var is_applicable_check = $(this).closest('tr').find("input[name='hr_mark_applicable']").is(":checked");
+
+                if(is_applicable_check == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove not applicable check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var hr_mark_complete_is_checked = $(this).is(":checked");
+
+                if (hr_mark_complete_is_checked == true) {
+                    var hr_mark_complete = false;
+                    $(this).next().val('True');
+
+                    var hr_file = $(this).closest('tr').find('.hr_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if ((document_file.length == 1) || (hr_file != "")) {
+                        hr_mark_complete = true;
+                    }
+
+                    if (hr_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'Please upload the file first',
+                        });
+                        $(this).prop('checked', false);
+                        $(this).next().val('False');
+                    }
+                } else {
+                    var hr_mark_complete = true;
+                    $(this).next().val('False');
+
+                    var hr_file = $(this).closest('tr').find('.hr_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if ((document_file.length == 1) || (hr_file != "")) {
+                        hr_mark_complete = false;
+                    }
+
+                    if (hr_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'File already exist.',
+                        });
+                        $(this).prop('checked', true);
+                        $(this).next().val('True');
+                    }
+                }
+            });
+
+
+            $(".save_for_later_step_3").on('click', function(event){
+                validate = true;
+                event.preventDefault();
+
+                $('input[name="hr_submit"]').val('False');
+
+                $('.hr_file_list').each(function(){
+                    var file_name = $(this).prev().prev().val();
+                    if(file_name == ''){
+                        $(this).val('False');
+                    } else {
+                        $(this).val('True');
+                    }
+                });
+
+                $('.hr_table_body > tr').each(function () {
+                    hr_file = $(this).find('input[name="hr_file"]').val();
+                    hr_mark_complete = $(this).find('input[name="hr_mark_complete"]').is(':checked');
+                    if (hr_file != '') {
+                        if (hr_mark_complete == false) {
+                            validate = false;
+                            $.alert({
+                                title: 'Alert!',
+                                content: 'Please check mark complete where you have selected the file.',
+                            });
+                        }
+                    }
+                });
+
+                if(validate == true){
+                    $("form[name='hr_form']").submit();
+                } else {
+                    return false;
+                }
+
+            });
+
+
+            $(".submit_step_3").on('click', function (event) {
+                validation_failed = new Array();
+
+                event.preventDefault();
+                
+                $('input[name="hr_submit"]').val('True');
+
+                $('.hr_table_body > tr').each(function () {
+                    hr_mark_complete = $(this).find('input[name="hr_mark_complete"]').is(':checked');
+                    hr_mark_applicable = $(this).find('input[name="hr_mark_applicable"]').is(':checked');
+                    if ((hr_mark_complete == true) || (hr_mark_applicable == true)) {
+                        validation_failed.push('false');
+                    } else {
+                        validation_failed.push('true');
+                    }
+                });
+
+                if (validation_failed.includes('true') == true) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'All Task items must be complete to submit this step.',
+                    });
+                } else {
+                    $("form[name='hr_form']").submit();
+                }
+            });
+
+            // medical form validation
+            $("input[name='medical_mark_applicable']").each(function () {
+                var medical_mark_applicable_is_checked = $(this).is(':checked');
+                if (medical_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+            $("input[name='medical_mark_complete']").each(function () {
+                var medical_mark_complete_is_checked = $(this).is(':checked');
+                if (medical_mark_complete_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+
+            $("input[name='medical_mark_applicable']").on('change', function () {
+                var is_mark_complete = $(this).closest('tr').find("input[name='medical_mark_complete']").is(":checked");
+                if(is_mark_complete == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove mark complete check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var medical_mark_applicable_is_checked = $(this).is(":checked");
+                if (medical_mark_applicable_is_checked == true) {
+                    $(this).next().val('True');
+                } else {
+                    $(this).next().val('False');
+                }
+            });
+            
+
+            $("input[name='medical_mark_complete']").on('change', function () {
+                var is_applicable_check = $(this).closest('tr').find("input[name='medical_mark_applicable']").is(":checked");
+
+                if(is_applicable_check == true){
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'First remove not applicable check.',
+                    });
+                    $(this).prop('checked', false);
+                    return false;
+                }
+
+                var medical_mark_complete_is_checked = $(this).is(":checked");
+
+                if (medical_mark_complete_is_checked == true) {
+                    var medical_mark_complete = false;
+                    $(this).next().val('True');
+
+                    var medical_file = $(this).closest('tr').find('.medical_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if ((document_file.length == 1) || (medical_file != "")) {
+                        medical_mark_complete = true;
+                    }
+
+                    if (medical_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'Please upload the file first',
+                        });
+                        $(this).prop('checked', false);
+                        $(this).next().val('False');
+                    }
+                } else {
+                    var medical_mark_complete = true;
+                    $(this).next().val('False');
+
+                    var medical_file = $(this).closest('tr').find('.medical_file').val();
+                    var document_file = $(this).closest('tr').find('.document-file');
+
+                    if ((document_file.length == 1) || (medical_file != "")) {
+                        medical_mark_complete = false;
+                    }
+
+                    if (medical_mark_complete == false) {
+                        $.alert({
+                            title: 'Alert!',
+                            content: 'File already exist.',
+                        });
+                        $(this).prop('checked', true);
+                        $(this).next().val('True');
+                    }
+                }
+            });
+            
+
+            $(".save_for_later_step_4").on('click', function(event){
+
+                validate = true;
+                event.preventDefault();
+
+                $('input[name="medical_submit"]').val('False');
+
+                $('.medical_file_list').each(function(){
+                    var file_name = $(this).prev().prev().val();
+                    if(file_name == ''){
+                        $(this).val('False');
+                    } else {
+                        $(this).val('True');
+                    }
+                });
+
+                $('.medical_table_body > tr').each(function () {
+                    medical_file = $(this).find('input[name="medical_file"]').val();
+                    medical_mark_complete = $(this).find('input[name="medical_mark_complete"]').is(':checked');                    
+                    if (medical_file != '') {
+                        if (medical_mark_complete == false) {
+                            validate = false;
+                            $.alert({
+                                title: 'Alert!',
+                                content: 'Please check mark complete where you have selected the file.',
+                            });
+                        }
+                    }
+                });
+
+                if(validate == true){
+                    $("form[name='medical_form']").submit();
+                } else {
+                    return false;
+                }
+
+            });
+
+
+            $(".submit_step_4").on('click', function (event) {
+                validation_failed = new Array();
+
+                event.preventDefault();
+
+                $('input[name="medical_submit"]').val('True');
+
+                $('.medical_table_body > tr').each(function () {
+                    medical_mark_complete = $(this).find('input[name="medical_mark_complete"]').is(':checked');
+                    medical_mark_applicable = $(this).find('input[name="medical_mark_applicable"]').is(':checked');
+                    if ((medical_mark_complete == true) || (medical_mark_applicable == true)) {
+                        validation_failed.push('false');
+                    } else {
+                        validation_failed.push('true');
+                    }
+                });
+
+                if (validation_failed.includes('true') == true) {
+                    $.alert({
+                        title: 'Alert!',
+                        content: 'All Task items must be complete to submit this step.',
+                    });
+                } else {
+                    $("form[name='medical_form']").submit();
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block pagetitle %}
+    Setup Company {{ block.super }}
+{% endblock %}
+
+{% block toplinks %}
+<div class="row">
+    <ul class="nav responsive-tab nav-material nav-material-white">
+        <li>
+            <a class="nav-link active" href="{% url 'company-listing' %}"><i class="icon icon-list"></i>Manage
+                Companies</a>
+        </li>
+        <li>
+            <a class="nav-link" href="{% url 'create-company-info' %}"><i class="icon icon-plus-circle"></i> Add New
+                Company</a>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <br>
+        {% if messages %}
+            <div class="alert alert-info alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span>
+                </button>
+                {% for message in messages %}
+                <strong>
+                    {{message}}
+                </strong>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <br>
+        <div class="card mb-3 shadow no-b r-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-hover data-tables" data-options='{ "paging": false; "searching":false}'>
+                            <!-- Table heading -->
+                            <thead>
+                                <tr class="no-b">
+                                    <th>Company Name</th>
+                                    <th width="70px">Company ID</th>
+                                    <th>Company Admin</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                {% if object_list %}
+                                {% for company in object_list %}
+                                <tr>
+                                    <td>{{company.company_name}}</td>
+                                    <td>{{company.company_id}}</td>
+                                    <td>{{company.company_admin}}</td>
+                                    <td>{{company.email}}</td>                                    
+                                    <td>
+                                        {% if company.contract_status == True %}
+                                            Active
+                                        {% else %}
+                                            InActive
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{%url 'edit-company-info' id=company.id %}"><i class="icon-edit"></i></a>
+                                        &nbsp;
+                                        {% if company.upload_contract %}
+                                            <a href="{{company.upload_contract.url}}"><i class="icon-download"></i></a>
+                                        {% else %}
+                                            <a href="#" class="disabled"><i class="icon-download"></i></a>
+                                        {% endif %}
+                                        &nbsp;
+                                        <a href="#"><i class="icon-trash text-danger-o text-danger systemcompanysetup-delete" data-id="{{ company.id }}"></i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script>
+    $('.systemcompanysetup-delete').on('click', function () {
+        dom_document = $(this);
+        $.confirm({
+            title: 'System Company Setup Delete',
+            content: '<strong>Are you sure?</strong>',
+            icon: 'fa fa-question-circle',
+            animation: 'scale',
+            closeAnimation: 'scale',
+            opacity: 0.5,
+            buttons: {
+                'confirm': {
+                    text: 'Yes',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        systemcompanysetup_id = $('.systemcompanysetup-delete').data("id");
+                        $.ajax({
+                            url: '/ajax/delete-company-info/' + systemcompanysetup_id,
+                            dataType: 'json',
+                            success: function (data) {
+                                if (data.status) {
+                                    $.alert('<strong>Information Deleted Successfully</strong>');
+                                    dom_document.closest('tr').remove();
+                                } else {
+                                    $.alert('<strong>Information Deletion Failed</strong>');
+                                }
+                            }
+                        });
+                    }
+                },
+                cancel: {
+                    text: 'No',
+                    action: function () {
+                        backgroundDismiss: true
+                    }
+                },
+            }
+        });
+    });
+</script>
+{% endblock %}
